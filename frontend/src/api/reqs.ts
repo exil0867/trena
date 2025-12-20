@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { supabase } from './supabase';
+import { getAccessToken, getCurrentUser } from './auth';
 
 const envSchema = z.object({
     EXPO_PUBLIC_API_URL: z.string().url(),
@@ -10,13 +10,13 @@ const env = envSchema.parse(process.env);
 const API_URL = env.EXPO_PUBLIC_API_URL;
 
 const getHeaders = async () => {
-    const session = await supabase.auth.getSession();
-    const authToken = session.data.session?.access_token;
-    return {
-        'Content-Type': 'application/json',
-        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
-    };
+  const token = await getAccessToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 };
+
 
 export const fetchUserActivities = async (userId: string) => {
     const response = await fetch(`${API_URL}/user-activities?user_id=${userId}`, {
@@ -87,7 +87,13 @@ export const addExerciseToGroup = async (groupId: string, exerciseId: string): P
     return response.json();
 };
 
-export const createExercise = async (newExerciseName: string, newExerciseDescription: string) => {
+export type ExerciseTrackingType =
+  | 'reps_sets_weight'
+  | 'time_based'
+  | 'distance_based'
+  | 'calories';
+
+export const createExercise = async (newExerciseName: string, newExerciseDescription: string, trackingType: ExerciseTrackingType) => {
 
     const response = await fetch(`${API_URL}/exercises`, {
         method: 'POST',
@@ -95,6 +101,7 @@ export const createExercise = async (newExerciseName: string, newExerciseDescrip
         body: JSON.stringify({
             name: newExerciseName.trim(),
             description: newExerciseDescription.trim(),
+            tracking_type: trackingType
         }),
     });
 
@@ -105,11 +112,13 @@ export const createExercise = async (newExerciseName: string, newExerciseDescrip
 };
 
 export const fetchRecentLogs = async (limit: number) => {
-    const user = await supabase.auth.getUser();
-    const userId = user.data.user?.id;
+    const user = await getCurrentUser();
+    const userId = user?.sub;
+
+    console.log('fetchRecentLogs', 'called')
 
     if (userId) {
-        const response = await fetch(`${API_URL}/users/${userId}/exercise-logs?limit=${limit}`, {
+        const response = await fetch(`${API_URL}/users/exercise-logs?limit=${limit}`, {
             headers: await getHeaders(),
         });
         if (!response.ok) {
@@ -119,6 +128,7 @@ export const fetchRecentLogs = async (limit: number) => {
         if (data && Array.isArray(data)) {
             data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         }
+        console.log(data, 'fetchRecentLogs call')
         return data;
     }
 };
@@ -143,7 +153,7 @@ export interface Exercise {
 // Interface for a single exercise log with the full exercise object included
 export interface ExerciseLogWithExercise {
     id: string;
-    user_id: string;
+    account_id: string;
     exercise_id: string;
     date: string;
     metrics: Record<string, any>; // or a more specific type if your metrics have a consistent structure
@@ -168,14 +178,14 @@ export interface CardioMetrics {
 
 
 export const fetchLogs = async (): Promise<ExerciseLogsResponse> => {
-    const user = await supabase.auth.getUser();
-    const userId = user.data.user?.id;
+    const user = await getCurrentUser();
+    const userId = user?.sub;
 
     if (!userId) {
         return [];
     }
 
-    const response = await fetch(`${API_URL}/users/${userId}/exercise-logs`, {
+    const response = await fetch(`${API_URL}/users/exercise-logs`, {
         headers: await getHeaders(),
     });
 
@@ -196,15 +206,14 @@ export type ExerciseMetrics = StrengthMetrics | CardioMetrics;
 export const logExercise = async (selectedExerciseId: string, sets: string, reps: string, weight: string, notes: string) => {
     if (!selectedExerciseId || !sets || !reps) return;
 
-    const user = await supabase.auth.getUser();
-    const userId = user.data.user?.id;
+    const user = await getCurrentUser();
+    const userId = user?.sub;
 
     if (userId) {
         const response = await fetch(`${API_URL}/exercise-logs`, {
             method: 'POST',
             headers: await getHeaders(),
             body: JSON.stringify({
-                user_id: userId,
                 exercise_id: selectedExerciseId,
                 metrics: {
                     sets: parseInt(sets),

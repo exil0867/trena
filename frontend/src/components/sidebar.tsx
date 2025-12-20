@@ -10,8 +10,8 @@ import {
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
-import { supabase } from "@/api/supabase";
 import { useAppContext } from "../context/AppContext"; // Make sure this path is correct
+import { signOut } from "@/api/auth";
 
 export default function Sidebar({ sidebarVisible, width }) {
     const sidebarAnimatedWidth = useRef(
@@ -48,9 +48,7 @@ export default function Sidebar({ sidebarVisible, width }) {
 
     const handleSignOut = async () => {
         try {
-            // Assuming you're still using Supabase for auth
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
+          await signOut()
         } catch (error) {
             console.error('Sign out error:', error.message);
         }

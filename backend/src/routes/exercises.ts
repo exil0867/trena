@@ -1,259 +1,288 @@
 import { Context } from 'hono';
-import { supabase } from '../index';
 import {
-    UpsertExerciseGroupSchema,
+    UpsertRoutineSchema,
     UpsertExerciseSchema,
-    ExerciseGroupExerciseSchema,
+    RoutineExerciseSchema,
     UpsertExerciseLogSchema
 } from '../models';
 import { v4 as uuidv4 } from 'uuid';
+import { query } from '../lib/database';
+import { getCurrentUser } from './auth';
 
-export async function getExerciseGroupsByPlan(c: Context) {
-    const planId = c.req.param('planId');
+export async function getRoutinesByPlan(c: Context) {
+  const planId = c.req.param('planId');
 
-    try {
-        const { data, error } = await supabase
-            .from('exercise_groups')
-            .select('*')
-            .eq('plan_id', planId);
+  try {
+    const result = await query(
+      'SELECT * FROM routines WHERE plan_id = $1',
+      [planId]
+    );
 
-        if (error) {
-            return c.json({ error: 'Could not retrieve exercise groups', details: error.message }, 500);
-        }
-
-        return c.json(data);
-    } catch (err) {
-        return c.json({ error: 'Failed to retrieve exercise groups', details: String(err) }, 500);
+    if (result.rowCount === 0) {
+      return c.json({ error: 'No routines found for this plan' }, 404);
     }
+
+    return c.json(result.rows);
+  } catch (err) {
+    return c.json(
+      { error: 'Failed to retrieve routines', details: String(err) },
+      500
+    );
+  }
 }
 
-export async function createExerciseGroup(c: Context) {
-    try {
-        const body = await c.req.json();
-        const groupData = UpsertExerciseGroupSchema.parse(body);
 
-        const { data, error } = await supabase
-            .from('exercise_groups')
-            .insert([groupData])
-            .select();
+export async function createRoutine(c: Context) {
+  try {
+    const body = await c.req.json();
+    const routineData = UpsertRoutineSchema.parse(body);
 
-        if (error) {
-            return c.json({ error: 'Could not create exercise group', details: error.message }, 500);
-        }
+    const result = await query(
+      `INSERT INTO routines (name, day_of_week, plan_id)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [routineData.name, routineData.day_of_week, routineData.plan_id]
+    );
 
-        return c.json(data);
-    } catch (err) {
-        return c.json({ error: 'Failed to create exercise group', details: String(err) }, 500);
-    }
+    return c.json(result.rows[0]);
+  } catch (err) {
+    return c.json(
+      { error: 'Failed to create routine', details: String(err) },
+      500
+    );
+  }
 }
 
-export async function getExercisesByGroup(c: Context) {
-    const groupId = c.req.param('groupId');
+export async function getRoutineExercises(c: Context) {
+  const routineId = c.req.param('routineId');
 
-    try {
-        // Verify the group exists
-        const { data: group, error: groupError } = await supabase
-            .from('exercise_groups')
-            .select('id, name')
-            .eq('id', groupId)
-            .single();
+  try {
+    // Check routine exists
+    const routineResult = await query(
+      'SELECT id, name FROM routines WHERE id = $1',
+      [routineId]
+    );
 
-        if (groupError || !group) {
-            return c.json({ error: 'Exercise group not found' }, 404);
-        }
-
-        // Fetch exercises in the group
-        const { data: exerciseRelations, error: relationsError } = await supabase
-            .from('exercise_group_exercises')
-            .select('exercise_group_id, exercise_id, exercises(id, name, description, tracking_type)')
-            .eq('exercise_group_id', groupId);
-
-        if (relationsError) {
-            return c.json({ error: 'Failed to fetch exercises', details: relationsError.message }, 500);
-        }
-
-        // Prepare response
-        const exercises = exerciseRelations?.map(relation => (relation.exercises)) || [];
-
-        return c.json({
-            exercise_group_id: groupId,
-            group_name: group.name,
-            exercises: exercises
-        });
-    } catch (err) {
-        return c.json({ error: 'Failed to retrieve exercises', details: String(err) }, 500);
+    if (routineResult.rowCount === 0) {
+      return c.json({ error: 'Routine not found' }, 404);
     }
+
+    // Fetch exercises in routine
+    const exercisesResult = await query(
+      `SELECT e.id, e.name, e.description, e.tracking_type
+       FROM routines_exercises re
+       JOIN exercises e ON re.exercise_id = e.id
+       WHERE re.routine_id = $1`,
+      [routineId]
+    );
+
+    return c.json({
+      routineId: routineId,
+      routine_name: routineResult.rows[0].name,
+      exercises: exercisesResult.rows,
+    });
+  } catch (err) {
+    return c.json(
+      { error: 'Failed to retrieve exercises', details: String(err) },
+      500
+    );
+  }
 }
 
 export async function createExercise(c: Context) {
-    try {
-        const body = await c.req.json();
-        const exerciseData = UpsertExerciseSchema.parse(body);
+  try {
+    const body = await c.req.json();
+    const exerciseData = UpsertExerciseSchema.parse(body);
 
-        const { data, error } = await supabase
-            .from('exercises')
-            .insert([exerciseData])
-            .select();
+    const result = await query(
+      `INSERT INTO exercises (name, description, tracking_type)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [
+        exerciseData.name,
+        exerciseData.description,
+        exerciseData.tracking_type,
+      ]
+    );
 
-        if (error) {
-            return c.json({ error: 'Could not create exercise', details: error.message }, 500);
-        }
-
-        return c.json(data);
-    } catch (err) {
-        return c.json({ error: 'Failed to create exercise', details: String(err) }, 500);
-    }
+    return c.json(result.rows[0]);
+  } catch (err) {
+    return c.json(
+      { error: "Failed to create exercise", details: String(err) },
+      500
+    );
+  }
 }
+export async function addExerciseToRoutine(c: Context) {
+  try {
+    const body = await c.req.json();
+    const routineId = c.req.param("routineId");
 
-export async function addExerciseToGroup(c: Context) {
-    try {
-        const body = await c.req.json();
-        const groupId = c.req.param('groupId');
+    const routineRelation = RoutineExerciseSchema.parse({
+      ...body,
+      routine_id: routineId,
+    });
 
-        // Override the group ID from the path parameter
-        const exerciseGroupRelation = ExerciseGroupExerciseSchema.parse({
-            ...body,
-            exercise_group_id: groupId
-        });
-
-        // Check if exercise group exists
-        const { data: group, error: groupError } = await supabase
-            .from('exercise_groups')
-            .select('id, name')
-            .eq('id', exerciseGroupRelation.exercise_group_id)
-            .single();
-
-        if (groupError || !group) {
-            return c.json({ error: 'Exercise group not found' }, 404);
-        }
-
-        // Check if exercise exists
-        const { data: exercise, error: exerciseError } = await supabase
-            .from('exercises')
-            .select('id, name, description')
-            .eq('id', exerciseGroupRelation.exercise_id)
-            .single();
-
-        if (exerciseError || !exercise) {
-            return c.json({ error: 'Exercise not found' }, 404);
-        }
-
-        // Insert the exercise to group
-        const { error: insertError } = await supabase
-            .from('exercise_group_exercises')
-            .insert([exerciseGroupRelation]);
-
-        if (insertError) {
-            return c.json({ error: 'Failed to add exercise to group', details: insertError.message }, 500);
-        }
-
-        // Prepare the response
-        return c.json({
-            exercise_group_id: group.id,
-            group_name: group.name,
-            exercise: {
-                id: exercise.id,
-                name: exercise.name,
-                description: exercise.description
-            }
-        });
-    } catch (err) {
-        return c.json({ error: 'Failed to add exercise to group', details: String(err) }, 500);
+    // Check routine exists
+    const routineResult = await query(
+      "SELECT id, name FROM routines WHERE id = $1",
+      [routineRelation.routine_id]
+    );
+    if (routineResult.rowCount === 0) {
+      return c.json({ error: "Routine not found" }, 404);
     }
-}
 
+    // Check exercise exists
+    const exerciseResult = await query(
+      "SELECT id, name, description FROM exercises WHERE id = $1",
+      [routineRelation.exercise_id]
+    );
+    if (exerciseResult.rowCount === 0) {
+      return c.json({ error: "Exercise not found" }, 404);
+    }
+
+    // Insert relation
+    await query(
+      `INSERT INTO routine_exercises (routine_id, exercise_id)
+       VALUES ($1, $2)`,
+      [routineRelation.routine_id, routineRelation.exercise_id]
+    );
+
+    return c.json({
+      routine_id: routineResult.rows[0].id,
+      routine_name: routineResult.rows[0].name,
+      exercise: exerciseResult.rows[0],
+    });
+  } catch (err) {
+    return c.json(
+      { error: "Failed to add exercise to routine", details: String(err) },
+      500
+    );
+  }
+}
 export async function getExercises(c: Context) {
-    try {
-        const { data, error } = await supabase
-            .from('exercises')
-            .select('id, name, description, tracking_type');
+  try {
+    const result = await query(
+      "SELECT id, name, description, tracking_type FROM exercises"
+    );
 
-        if (error) {
-            return c.json({ error: 'Could not retrieve exercises', details: error.message }, 500);
-        }
-
-        return c.json(data);
-    } catch (err) {
-        return c.json({ error: 'Failed to retrieve exercises', details: String(err) }, 500);
-    }
+    return c.json(result.rows);
+  } catch (err) {
+    return c.json(
+      { error: "Failed to retrieve exercises", details: String(err) },
+      500
+    );
+  }
 }
 
 export async function logExercise(c: Context) {
-    try {
-        const body = await c.req.json();
-        const logData = UpsertExerciseLogSchema.parse(body);
+  try {
+    const body = await c.req.json();
+    const logData = UpsertExerciseLogSchema.parse(body);
 
-        // First, fetch the full exercise details
-        const { data: exercise, error: exerciseError } = await supabase
-            .from('exercises')
-            .select('id, name, tracking_type, description')
-            .eq('id', logData.exercise_id)
-            .single();
+    const userResult = await getCurrentUser(c)
 
-        if (exerciseError || !exercise) {
-            return c.json({ error: 'Exercise not found' }, 404);
-        }
+    const accountIdObject = await userResult.json()
 
-        // Insert the exercise log
-        const { data: insertedLog, error: insertError } = await supabase
-            .from('exercise_logs')
-            .insert([logData])
-            .select()
-            .single();
+    const accountId = accountIdObject.id
 
-        if (insertError || !insertedLog) {
-            return c.json({ error: 'Failed to log exercise', details: insertError?.message }, 500);
-        }
-
-        // Prepare the response with full exercise details
-        return c.json({
-            id: insertedLog.id,
-            user_id: insertedLog.user_id,
-            metrics: insertedLog.metrics,
-            created_at: insertedLog.created_at,
-            exercise_id: insertedLog.exercise_id,
-            exercise: {
-                id: exercise.id,
-                name: exercise.name,
-                tracking_type: exercise.tracking_type,
-                description: exercise.description
-            }
-        });
-    } catch (err) {
-        return c.json({ error: 'Failed to log exercise', details: String(err) }, 500);
+    // Fetch exercise details
+    const exerciseResult = await query(
+      "SELECT id, name, tracking_type, description FROM exercises WHERE id = $1",
+      [logData.exercise_id]
+    );
+    if (exerciseResult.rowCount === 0) {
+      return c.json({ error: "Exercise not found" }, 404);
     }
+    const exercise = exerciseResult.rows[0];
+
+    // Insert log
+    const logResult = await query(
+      `INSERT INTO exercise_logs (account_id, exercise_id, metrics, created_at)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING *`,
+      [
+        accountId,
+        logData.exercise_id,
+        logData.metrics,
+      ]
+    );
+
+    const insertedLog = logResult.rows[0];
+
+    return c.json({
+      ...insertedLog,
+      exercise,
+    });
+  } catch (err) {
+    return c.json(
+      { error: "Failed to log exercise", details: String(err) },
+      500
+    );
+  }
 }
 
 export async function getExerciseLogsByUser(c: Context) {
-    const userId = c.req.param('userId');
+  const userResult = await getCurrentUser(c)
+  const accountIdObject = await userResult.json()
+  const accountId = accountIdObject.id
 
-    try {
-        const { data, error } = await supabase
-            .from('exercise_logs')
-            .select('*, exercise:exercise_id(id, name, description, tracking_type)')
-            .eq('user_id', userId);
+  try {
+    const result = await query(`
+      SELECT
+        l.id,
+        l.metrics,
+        l.created_at,
+        l.exercise_id,
+        l.routine_id,
+        e.id as ex_id,
+        e.name as ex_name,
+        e.tracking_type as ex_tracking_type,
+        e.description as ex_description,
+        r.id as routine_id,
+        r.name as routine_name,
+        r.day_of_week,
+        p.id as plan_id,
+        p.name as plan_name
+      FROM exercise_logs l
+      JOIN exercises e ON l.exercise_id = e.id
+      JOIN routines r ON l.routine_id = r.id
+      JOIN plans p ON r.plan_id = p.id
+      WHERE p.account_id = $1
+      ORDER BY l.created_at DESC
+    `, [accountId]);
 
-        if (error) {
-            return c.json({ error: 'Could not retrieve exercise logs', details: error.message }, 500);
-        }
+    const formattedLogs = result.rows.map((row) => ({
+      id: row.id,
+      metrics: row.metrics,
+      created_at: row.created_at,
+      exercise_id: row.exercise_id,
+      routine_id: row.routine_id,
+      plan_id: row.plan_id,
+      // routine_id: row.routine,
+      exercise: {
+        id: row.ex_id,
+        name: row.ex_name,
+        tracking_type: row.ex_tracking_type,
+        description: row.ex_description,
+      },
+      plan: {
+        id: row.plan_id,
+        name: row.plan_name
+      },
+      routine: {
+        id: row.routine_id,
+        name: row.rountine_name,
+        day_of_week: row.day_of_week
+      }
+    }));
 
-        // Format the response
-        const formattedLogs = data.map(log => ({
-            id: log.id,
-            user_id: log.user_id,
-            metrics: log.metrics,
-            created_at: log.created_at,
-            exercise_id: log.exercise_id,
-            exercise: {
-                id: log.exercise.id,
-                name: log.exercise.name,
-                tracking_type: log.exercise.tracking_type,
-                description: log.exercise.description
-            }
-        }));
-
-        return c.json(formattedLogs);
-    } catch (err) {
-        return c.json({ error: 'Failed to retrieve exercise logs', details: String(err) }, 500);
-    }
+    return c.json(formattedLogs);
+  } catch (err) {
+    return c.json(
+      { error: "Failed to retrieve exercise logs", details: String(err) },
+      500
+    );
+  }
 }
+

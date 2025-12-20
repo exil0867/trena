@@ -4,6 +4,7 @@ import { View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Acti
 import { Link, router } from "expo-router";
 import { Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { signIn, signUp } from "@/api/auth";
 
 export default function AuthPage() {
     const [email, setEmail] = useState("");
@@ -18,19 +19,13 @@ export default function AuthPage() {
         setError("");
 
         try {
-            // This is where you would integrate with Supabase
-            // For now, we'll just simulate the authentication flow
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             if (isLogin) {
-                // Sign in logic would go here
-                console.log("Signing in with:", email, password);
-                // If successful:
-                router.replace("/");
+                const result = await signIn(email, password)
+                if (result) router.replace("/");
             } else {
-                // Sign up logic would go here
-                console.log("Signing up with:", email, password);
-                setError("Please check your email for verification link.");
+                const result = await signUp(email, password)
+                if (result) router.replace("/");
             }
         } catch (error: any) {
             setError(error.message || "An unexpected error occurred");

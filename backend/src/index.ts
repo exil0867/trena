@@ -2,11 +2,11 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
 import { config } from './config';
-import { createClient } from '@supabase/supabase-js';
+// import { createClient } from '@supabase/supabase-js';
 import * as routes from './routes';
 
 // Create a Supabase client
-export const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+// export const supabase = createClient(config.supabaseUrl, config.supabaseKey);
 
 // Create a Hono app
 const app = new Hono();
@@ -47,19 +47,19 @@ app.get('/plans/:id', routes.getPlan);
 app.post('/plans', routes.createPlan);
 app.get('/plans', routes.getPlans);
 
-// Exercise group routes
-app.get('/plans/:planId/groups', routes.getExerciseGroupsByPlan);
-app.post('/exercise-groups', routes.createExerciseGroup);
-app.get('/exercise-groups/:groupId/exercises', routes.getExercisesByGroup);
+// Routines routes
+app.get('/plans/:planId/routines', routes.getRoutinesByPlan);
+app.post('/routine', routes.createRoutine);
+app.get('/routine/:routineId/exercises', routes.getRoutineExercises);
+app.post('/routines/:routineId/exercises', routes.addExerciseToRoutine);
 
 // Exercise routes
 app.post('/exercises', routes.createExercise);
-app.post('/exercise-groups/:groupId/exercises', routes.addExerciseToGroup);
 app.get('/exercises', routes.getExercises);
 
 // Exercise log routes
 app.post('/exercise-logs', routes.logExercise);
-app.get('/users/:userId/exercise-logs', routes.getExerciseLogsByUser);
+app.get('/users/exercise-logs', routes.getExerciseLogsByUser);
 
 // Start the server
 console.log(`Server is running on port ${config.port}`);

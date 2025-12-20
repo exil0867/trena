@@ -1,84 +1,108 @@
 import { Context } from 'hono';
-import { supabase } from '../index';
 import { AuthResponse } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { query } from '../lib/database';
+import bcrypt from "bcryptjs";
+
+
+function generateTokens(user) {
+  const accessToken = jwt.sign(
+    { sub: user.id, email: user.email, role: user.role },
+    config.jwtSecret,
+    { expiresIn: "15m" }
+  );
+
+  const refreshToken = jwt.sign(
+    { sub: user.id },
+    config.jwtSecret,
+    { expiresIn: "7d" }
+  );
+
+  return { accessToken, refreshToken };
+}
 
 export async function signUp(c: Context) {
-    const { email, password } = await c.req.json();
+  const { email, password } = await c.req.json();
 
-    if (!email || !password) {
-        return c.json({ error: 'Invalid request' }, 400);
-    }
+  if (!email || !password) {
+    return c.json({ error: "Invalid request" }, 400);
+  }
 
-    try {
-        const { data, error }: AuthResponse = await supabase.auth.signUp({
-            email,
-            password,
-        });
+  try {
+    const hashed = await bcrypt.hash(password, 10);
 
-        if (error) {
-            return c.json({ error: 'Signup failed', details: error.message }, 401);
-        }
+    const result = await query(
+      "INSERT INTO accounts (email, password_hash) VALUES ($1, $2) RETURNING id, email, role",
+      [email, hashed]
+    );
 
-        return c.json({ session: data });
-    } catch (err) {
-        return c.json({ error: 'Signup failed', details: String(err) }, 500);
-    }
+    const user = result.rows[0];
+    const tokens = generateTokens(user);
+
+    return c.json({ user, ...tokens });
+  } catch (err) {
+    return c.json({ error: "Signup failed", details: String(err) }, 500);
+  }
 }
 
 export async function signIn(c: Context) {
-    const { email, password } = await c.req.json();
+  const { email, password } = await c.req.json();
 
-    if (!email || !password) {
-        return c.json({ error: 'Invalid request' }, 400);
+  if (!email || !password) {
+    return c.json({ error: "Invalid request" }, 400);
+  }
+
+  try {
+    const result = await query(
+      "SELECT * FROM accounts WHERE email = $1",
+      [email]
+    );
+
+    if (result.rowCount === 0) {
+      return c.json({ error: "Invalid credentials" }, 401);
     }
 
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+    const user = result.rows[0];
+    const valid = await bcrypt.compare(password, user.password_hash);
 
-        if (error) {
-            return c.json({ error: 'Login failed', details: error.message }, 401);
-        }
-
-        return c.json({
-            access_token: data.session?.access_token,
-            refresh_token: data.session?.refresh_token,
-            expires_in: data.session?.expires_in,
-        });
-    } catch (err) {
-        return c.json({ error: 'Login failed', details: String(err) }, 500);
+    if (!valid) {
+      return c.json({ error: "Invalid credentials" }, 401);
     }
+
+    const tokens = generateTokens(user);
+    return c.json({ user: { id: user.id, email: user.email, role: user.role }, ...tokens });
+  } catch (err) {
+    return c.json({ error: "Login failed", details: String(err) }, 500);
+  }
 }
+
 
 export async function refreshToken(c: Context) {
-    const { refresh_token } = await c.req.json();
+  const { refresh_token } = await c.req.json();
 
-    if (!refresh_token) {
-        return c.json({ error: 'Invalid request' }, 400);
+  if (!refresh_token) {
+    return c.json({ error: "Invalid request" }, 400);
+  }
+
+  try {
+    const decoded = jwt.verify(refresh_token, config.jwtSecret) as jwt.JwtPayload;
+
+    const result = await query("SELECT id, email, role FROM accounts WHERE id = $1", [decoded.sub]);
+
+    if (result.rowCount === 0) {
+      return c.json({ error: "User not found" }, 404);
     }
 
-    try {
-        const { data, error } = await supabase.auth.refreshSession({
-            refresh_token,
-        });
+    const user = result.rows[0];
+    const tokens = generateTokens(user);
 
-        if (error) {
-            return c.json({ error: 'Token refresh failed', details: error.message }, 401);
-        }
-
-        return c.json({
-            access_token: data.session?.access_token,
-            refresh_token: data.session?.refresh_token,
-            expires_in: data.session?.expires_in,
-        });
-    } catch (err) {
-        return c.json({ error: 'Token refresh failed', details: String(err) }, 500);
-    }
+    return c.json(tokens);
+  } catch (err) {
+    return c.json({ error: "Token refresh failed", details: String(err) }, 401);
+  }
 }
+
 
 export async function getCurrentUser(c: Context) {
     const authHeader = c.req.header('Authorization');

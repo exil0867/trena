@@ -1,4 +1,4 @@
-// src/app/plans.tsx
+// src/app/exercises.tsx
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -10,71 +10,81 @@ import {
     KeyboardAvoidingView,
     Platform
 } from "react-native";
-import { Link, router, useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppContext } from "../context/AppContext";
-import { createPlan, fetchPlans } from "../api/reqs";
+import { useAppContext } from "../../context/AppContext";
+import { createExercise, fetchAllExercises } from "../../api/reqs";
 
-interface Plan {
+interface Exercise {
     id: string;
     name: string;
+    description: string;
 }
 
-export default function PlansScreen() {
-    const [plans, setPlans] = useState<Plan[]>([]);
+export default function ExercisesScreen() {
+    const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [newPlanName, setNewPlanName] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [newExerciseName, setNewExerciseName] = useState("");
+    const [newExerciseDescription, setNewExerciseDescription] = useState("");
     const navigation = useNavigation<any>();
     const { top, bottom } = useSafeAreaInsets();
 
     useEffect(() => {
-        handleFetchPlans();
+      fetchExercises()
     }, []);
 
-
-    const handleFetchPlans = async () => {
-
+    const fetchExercises = async () => {
         setLoading(true);
         try {
-            const data = await fetchPlans();
-            console.log('fetch plans', data)
+            const data = await fetchAllExercises();
 
             if (data && Array.isArray(data)) {
-                setPlans(data);
+                setExercises(data);
             }
         } catch (error) {
-            console.error("Error fetching plans:", error);
+            console.error("Error fetching exercises:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCreatePlan = async () => {
-        if (!newPlanName.trim()) return;
+    const handleCreateExercise = async () => {
+        if (!newExerciseName.trim()) return;
 
         try {
-            const newPlan = await createPlan(newPlanName);
-            setPlans([...plans, newPlan]);
-            setNewPlanName("");
-            setVisible(false);
+            const newExercise = await createExercise(newExerciseName, newExerciseDescription, 'reps_sets_weight');
+            setExercises([...exercises, newExercise]);
+            resetForm();
         } catch (error) {
-            console.error("Error creating plan:", error);
+            console.error("Error creating exercise:", error);
         }
     };
 
-    const handlePlanPress = (plan: Plan) => {
-        navigation.navigate("PlanDetail", { plan });
+    const resetForm = () => {
+        setNewExerciseName("");
+        setNewExerciseDescription("");
+        setVisible(false);
     };
 
-    const renderItem = ({ item }: { item: Plan }) => (
+    const handleExercisePress = (exercise: Exercise) => {
+        navigation.navigate("ExerciseDetail", { exercise });
+    };
+
+    const renderItem = ({ item }: { item: Exercise }) => (
         <TouchableOpacity
             className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
-            onPress={() => handlePlanPress(item)}
+            onPress={() => handleExercisePress(item)}
         >
-            <Link href={`/plan?plan=${item.id}`} className="text-lg font-bold text-gray-900 dark:text-white">
+            <Text className="text-lg font-bold text-gray-900 dark:text-white">
                 {item.name}
-            </Link>
+            </Text>
+            {item.description ? (
+                <Text className="mt-2 text-gray-600 dark:text-gray-400">
+                    {item.description}
+                </Text>
+            ) : null}
         </TouchableOpacity>
     );
 
@@ -90,7 +100,7 @@ export default function PlansScreen() {
                     Trena
                 </Text>
                 <Text className="mt-2 text-gray-600 dark:text-gray-400">
-                    Training Plans
+                    Exercises Library
                 </Text>
             </View>
 
@@ -98,18 +108,31 @@ export default function PlansScreen() {
             <View className="flex-1 px-4">
                 {(
                     <>
-                        {plans.length === 0 ? (
+                        {/* Search Bar */}
+                        <View className="mb-4">
+                            <TextInput
+                                className="px-4 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg"
+                                placeholder="Search exercises"
+                                placeholderTextColor="#9CA3AF"
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                            />
+                        </View>
+
+                        {exercises.length === 0 ? (
                             <View className="flex-1 items-center justify-center px-6">
                                 <Text className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                                    No plans found
+                                    No exercises found
                                 </Text>
                                 <Text className="text-center text-gray-600 dark:text-gray-400">
-                                    Create your first training plan by clicking the + button
+                                    {exercises.length === 0
+                                        ? "Create your first exercise by clicking the + button"
+                                        : "Try adjusting your search"}
                                 </Text>
                             </View>
                         ) : (
                             <FlatList
-                                data={plans}
+                                data={exercises}
                                 renderItem={renderItem}
                                 keyExtractor={(item) => item.id}
                                 contentContainerStyle={{ padding: 8 }}
@@ -134,24 +157,38 @@ export default function PlansScreen() {
                 <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center px-6">
                     <View className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-sm p-6">
                         <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                            Create New Plan
+                            Create New Exercise
                         </Text>
 
                         <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Plan Name
+                            Exercise Name
                         </Text>
                         <TextInput
                             className="px-4 py-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
-                            placeholder="Enter plan name"
+                            placeholder="Enter exercise name"
                             placeholderTextColor="#9CA3AF"
-                            value={newPlanName}
-                            onChangeText={setNewPlanName}
+                            value={newExerciseName}
+                            onChangeText={setNewExerciseName}
+                        />
+
+                        <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Description (optional)
+                        </Text>
+                        <TextInput
+                            className="px-4 py-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
+                            placeholder="Enter description"
+                            placeholderTextColor="#9CA3AF"
+                            value={newExerciseDescription}
+                            onChangeText={setNewExerciseDescription}
+                            multiline
+                            numberOfLines={3}
+                            textAlignVertical="top"
                         />
 
                         <View className="flex-row justify-end space-x-2">
                             <TouchableOpacity
                                 className="py-2 px-4"
-                                onPress={() => setVisible(false)}
+                                onPress={resetForm}
                             >
                                 <Text className="text-gray-600 dark:text-gray-400">
                                     Cancel
@@ -159,12 +196,12 @@ export default function PlansScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className={`py-2 px-4 rounded-md ${!newPlanName.trim()
+                                className={`py-2 px-4 rounded-md ${!newExerciseName.trim()
                                     ? "bg-emerald-300 dark:bg-emerald-800"
                                     : "bg-emerald-600 dark:bg-emerald-500"
                                     }`}
-                                onPress={handleCreatePlan}
-                                disabled={!newPlanName.trim()}
+                                onPress={handleCreateExercise}
+                                disabled={!newExerciseName.trim()}
                             >
                                 <Text className="font-medium text-white">
                                     Create

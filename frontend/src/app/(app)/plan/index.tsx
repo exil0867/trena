@@ -22,7 +22,7 @@ import {
     FetchExercisesByGroupResponse,
     Exercise,
     fetchPlans
-} from "../../api/reqs";
+} from "../../../api/reqs";
 import { useAppContext } from "@/context/AppContext";
 
 interface Plan {

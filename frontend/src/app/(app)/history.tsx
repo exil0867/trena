@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppContext } from "../context/AppContext";
-import { fetchLogs, fetchPlans, fetchExerciseGroupsByPlan, fetchExercises } from "../api/reqs";
+import { useAppContext } from "../../context/AppContext";
+import { fetchLogs, fetchPlans, fetchExerciseGroupsByPlan, fetchExercises } from "../../api/reqs";
 
 export default function HistoryScreen() {
     const [loading, setLoading] = useState(false);
@@ -28,11 +28,13 @@ export default function HistoryScreen() {
     const [selectedExercise, setSelectedExercise] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [resetTime, setResetTime] = useState(new Date())
+
     const { top, bottom } = useSafeAreaInsets();
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [resetTime]);
 
     useEffect(() => {
         applyFilters();
@@ -53,6 +55,9 @@ export default function HistoryScreen() {
             setExercises(exercisesData || []);
 
             const logsData = await fetchLogs();
+            console.log('logs data, ', logsData)
+            console.log('exercisesData data, ', exercisesData)
+            console.log('exercisesData data, ', exercisesData)
             setLogs(logsData || []);
         } catch (error) {
             console.error("Error loading data:", error);
@@ -62,25 +67,26 @@ export default function HistoryScreen() {
     };
 
     const applyFilters = () => {
-        let filtered = [...logs];
+      let filtered = [...logs];
 
-        if (selectedPlan) {
-            filtered = filtered.filter((log) => log.plan_id === selectedPlan.id);
-        }
-        if (selectedGroup) {
-            filtered = filtered.filter((log) => log.group_id === selectedGroup.id);
-        }
-        if (selectedExercise) {
-            filtered = filtered.filter((log) => log.exercise_id === selectedExercise.id);
-        }
-        if (searchTerm) {
-            const lowerSearchTerm = searchTerm.toLowerCase();
-            filtered = filtered.filter((log) =>
-                log.exercise?.name.toLowerCase().includes(lowerSearchTerm)
-            );
-        }
+      if (selectedPlan) {
+        filtered = filtered.filter(log => log.plan_id === selectedPlan.id);
+      }
 
-        setLogs(filtered);
+      if (selectedGroup) {
+        filtered = filtered.filter(log => log.group_id === selectedGroup.id);
+      }
+
+      if (selectedExercise) {
+        filtered = filtered.filter(log => log.exercise_id === selectedExercise.id);
+      }
+
+      if (searchTerm) {
+        const lowerSearch = searchTerm.toLowerCase();
+        filtered = filtered.filter(log => log.exercise.name.toLowerCase().includes(lowerSearch));
+      }
+
+      setLogs(filtered);
     };
 
     const formatDate = (dateString) => {
@@ -152,9 +158,23 @@ export default function HistoryScreen() {
 
             {/* Filters */}
             <View className="px-4">
-                <Text className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Filter Logs
-                </Text>
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedPlan(null);
+                      setSelectedGroup(null);
+                      setSelectedExercise(null);
+                      setSearchTerm("");
+                      setResetTime(new Date());
+                    }}
+                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md"
+                  >
+                    <Text className="text-sm text-gray-800 dark:text-gray-200">Clear</Text>
+                  </TouchableOpacity>
+                </View>
                 <View className="flex-row space-x-2 mb-4">
                     <Dropdown
                         label="Select Plan"
@@ -182,6 +202,7 @@ export default function HistoryScreen() {
                     value={searchTerm}
                     onChangeText={setSearchTerm}
                 />
+
             </View>
 
             {/* Logs List */}
@@ -215,31 +236,46 @@ export default function HistoryScreen() {
     );
 }
 
-const Dropdown = ({ label, items, selectedItem, onSelect }) => (
+
+const Dropdown = ({ label, items, selectedItem, onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSelect = (item) => {
+    onSelect(item);
+    setIsOpen(false);
+  };
+
+  return (
     <View className="flex-1">
-        <TouchableOpacity
-            className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 flex-row justify-between items-center"
-            onPress={() => onSelect(selectedItem ? null : items[0] || null)}
+      <TouchableOpacity
+        className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 flex-row justify-between items-center"
+        onPress={() => setIsOpen(!isOpen)}
+      >
+        <Text
+          className={`${
+            selectedItem ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"
+          }`}
         >
-            <Text className={`${selectedItem ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>
-                {selectedItem ? selectedItem.name : label}
-            </Text>
-            <Text>{selectedItem ? "\u25B2" : "\u25BC"}</Text>
-        </TouchableOpacity>
-        {selectedItem && (
-            <View className="border border-gray-300 dark:border-gray-700 rounded-md mt-1 max-h-40 bg-white dark:bg-gray-800">
-                <ScrollView>
-                    {items.map((item) => (
-                        <TouchableOpacity
-                            key={item.id}
-                            className="py-3 px-4 border-b border-gray-200 dark:border-gray-700"
-                            onPress={() => onSelect(item)}
-                        >
-                            <Text className="text-black dark:text-white">{item.name}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-        )}
+          {selectedItem ? selectedItem.name : label}
+        </Text>
+        <Text>{isOpen ? "\u25B2" : "\u25BC"}</Text>
+      </TouchableOpacity>
+
+      {isOpen && (
+        <View className="border border-gray-300 dark:border-gray-700 rounded-md mt-1 max-h-40 bg-white dark:bg-gray-800">
+          <ScrollView>
+            {items.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                className="py-3 px-4 border-b border-gray-200 dark:border-gray-700"
+                onPress={() => handleSelect(item)}
+              >
+                <Text className="text-black dark:text-white">{item.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
-);
+  );
+};

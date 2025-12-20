@@ -9,12 +9,13 @@ import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
-    ScrollView
+    ScrollView,
+    Modal
 } from "react-native";
 import { Link, useNavigation, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppContext } from "../context/AppContext";
-import { fetchPlans, fetchExerciseGroupsByPlan, fetchExercisesByGroup, logExercise, fetchRecentLogs } from "../api/reqs";
+import { useAppContext } from "../../context/AppContext";
+import { fetchPlans, fetchExerciseGroupsByPlan, fetchExercisesByGroup, logExercise, fetchRecentLogs } from "../../api/reqs";
 
 interface Plan {
     id: string;
@@ -141,6 +142,7 @@ export default function LogsScreen() {
         try {
             // Modify the fetchRecentLogs function to get only the last 10 logs
             const data = await fetchRecentLogs(10); // Limit to 10 logs
+              console.log(data, 'fetchRecentLogs')
             if (data && Array.isArray(data)) {
                 setLogs(data);
             }
@@ -223,48 +225,46 @@ export default function LogsScreen() {
         </TouchableOpacity>
     );
 
-    const renderLogItem = ({ item }: { item: ExerciseLog }) => {
-        // Find the exercise name
-        const exercise = exercises.find((ex) => ex.id === item.exercise_id);
-
-        return (
-            <View className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-                <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                    {exercise?.name || "Unknown Exercise"}
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                    {formatDate(item.created_at)}
-                </Text>
-                <View className="flex-row justify-around mt-2">
-                    <View className="items-center">
-                        <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                            {item.sets || "-"}
-                        </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400">Sets</Text>
-                    </View>
-                    <View className="items-center">
-                        <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                            {item.reps || "-"}
-                        </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400">Reps</Text>
-                    </View>
-                    <View className="items-center">
-                        <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                            {item.weight ? `${item.weight} kg` : "-"}
-                        </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400">Weight</Text>
-                    </View>
+    const renderLogItem = ({ item }) => (
+        <View className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+            <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                {item.exercise?.name || "Unknown Exercise"}
+            </Text>
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {formatDate(item.created_at)}
+            </Text>
+            <Text className="text-sm text-gray-600 dark:text-gray-400">
+                {item.plan_name || "Unknown Plan"} • {item.group_name || "Unknown Group"}
+            </Text>
+            <View className="flex-row justify-around mt-2">
+                <View className="items-center">
+                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                        {item.metrics.sets || "-"}
+                    </Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-400">Sets</Text>
                 </View>
-                {item.notes && (
-                    <View className="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
-                        <Text className="text-sm text-gray-700 dark:text-gray-300">
-                            {item.notes}
-                        </Text>
-                    </View>
-                )}
+                <View className="items-center">
+                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                        {item.metrics.reps || "-"}
+                    </Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-400">Reps</Text>
+                </View>
+                <View className="items-center">
+                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                        {item.metrics.weight ? `${item.metrics.weight} kg` : "-"}
+                    </Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-400">Weight</Text>
+                </View>
             </View>
-        );
-    };
+            {item.metrics.notes && (
+                <View className="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
+                    <Text className="text-sm text-gray-700 dark:text-gray-300">
+                        {item.metrics.notes}
+                    </Text>
+                </View>
+            )}
+        </View>
+    );
 
     return (
         <KeyboardAvoidingView
@@ -404,13 +404,19 @@ export default function LogsScreen() {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-
                                 <FlatList
+                                  data={logs}
+                                  renderItem={renderLogItem}
+                                  keyExtractor={(item) => item.id}
+                                  contentContainerStyle={{ paddingBottom: 100 }}
+                                  showsVerticalScrollIndicator={false}
+                              />
+                                {/* <FlatList
                                     data={logs}
                                     renderItem={renderLogItem}
-                                    keyExtractor={(item) => item.id}
+                                    // keyExtractor={(item) => item.id}
                                     scrollEnabled={false}
-                                />
+                                /> */}
                             </View>
                         )}
                     </ScrollView>
@@ -418,7 +424,12 @@ export default function LogsScreen() {
             </View>
 
             {/* Add Log Dialog */}
-            {dialogVisible && (
+            <Modal
+  visible={dialogVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={resetForm}
+>
                 <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center px-6">
                     <View className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-sm p-6">
                         <Text className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -513,7 +524,7 @@ export default function LogsScreen() {
                         </View>
                     </View>
                 </View>
-            )}
+            </Modal>
 
             {/* Back Link */}
             <View className="mt-2 mb-4 items-center">

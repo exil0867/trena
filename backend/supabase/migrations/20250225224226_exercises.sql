@@ -8,8 +8,8 @@ CREATE TABLE exercises (
     tracking_type exercise_tracking_type NOT NULL
 );
 
-CREATE TABLE exercise_group_exercises (
-    exercise_group_id UUID REFERENCES exercise_groups(id) ON DELETE CASCADE,
+CREATE TABLE routine_exercises (
+    routine_id UUID REFERENCES routines(id) ON DELETE CASCADE,
     exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE,
-    PRIMARY KEY (exercise_group_id, exercise_id)
+    PRIMARY KEY (routine_id, exercise_id)
 );
