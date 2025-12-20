@@ -33,7 +33,7 @@ jobs:
 
       - name: Decode Android keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/trena-release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/app/trena-release.keystore
 
       - name: Build release APK
         env:
