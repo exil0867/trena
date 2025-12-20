@@ -29,7 +29,9 @@ jobs:
           node-version: 20
 
       - name: Install JS dependencies
-        run: npm install
+        run: |
+          cd frontend
+          npm install
 
       - name: Decode Android keystore
         run: |
@@ -50,4 +52,4 @@ jobs:
         with:
           tag_name: ${{ inputs.tag }}
           name: Release ${{ inputs.tag }}
-          files: android/app/build/outputs/apk/release/*.apk
+          files: frontend/android/app/build/outputs/apk/release/*.apk
