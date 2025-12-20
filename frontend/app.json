@@ -15,6 +15,9 @@
       ]
     ],
     "name": "trena",
-    "slug": "trena"
+    "slug": "trena",
+    "android": {
+      "package": "com.exil0548.trena"
+    }
   }
 }
