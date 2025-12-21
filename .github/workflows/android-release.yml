@@ -28,6 +28,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
