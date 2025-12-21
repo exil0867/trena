@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { config } from './config';
+import { config } from './config.js';
 // import { createClient } from '@supabase/supabase-js';
-import * as routes from './routes';
+import * as routes from './routes/index.js';
 
 // Create a Supabase client
 // export const supabase = createClient(config.supabaseUrl, config.supabaseKey);

@@ -1,6 +1,6 @@
 import { Context } from 'hono';
-import { UpsertPlanSchema } from '../models';
-import { query } from '../lib/database';
+import { UpsertPlanSchema } from '../models/index.js';
+import { query } from '../lib/database/index.js';
 
 export async function getPlan(c: Context) {
   const planId = c.req.param("id");

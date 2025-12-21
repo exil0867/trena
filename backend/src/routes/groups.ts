@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { query } from "../lib/database";
+import { query } from "../lib/database/index.js";
 
 export async function getExerciseGroups(c: Context) {
   const planId = c.req.query('plan_id');

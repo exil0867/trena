@@ -4,10 +4,10 @@ import {
     UpsertExerciseSchema,
     RoutineExerciseSchema,
     UpsertExerciseLogSchema
-} from '../models';
+} from '../models/index.js';
 import { v4 as uuidv4 } from 'uuid';
-import { query } from '../lib/database';
-import { getCurrentUser } from './auth';
+import { query } from '../lib/database/index.js';
+import { getCurrentUser } from './auth.js';
 
 export async function getRoutinesByPlan(c: Context) {
   const planId = c.req.param('planId');

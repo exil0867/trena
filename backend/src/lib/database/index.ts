@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { env } from "./schema";
+import { env } from "./schema.js";
 
 const pool = new Pool({
   host: env.DB_HOST,

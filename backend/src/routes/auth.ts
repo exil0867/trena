@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { AuthResponse } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
-import { config } from '../config';
-import { query } from '../lib/database';
+import { config } from '../config.js';
+import { query } from '../lib/database/index.js';
 import bcrypt from "bcryptjs";
 
 
