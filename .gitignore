@@ -15,5 +15,9 @@ devenv.local.nix
 /backend/.env
 
 /frontend/.env
+/*.keystore
 /frontend/android/*.keystore
 /frontend/android/app/*.keystore
+
+.env
+local.properties
