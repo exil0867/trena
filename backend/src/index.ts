@@ -61,6 +61,13 @@ app.get('/exercises', routes.getExercises);
 app.post('/exercise-logs', routes.logExercise);
 app.get('/users/exercise-logs', routes.getExerciseLogsByUser);
 
+app.get('/exercise-groups', routes.getExerciseGroups);
+app.post('/exercise-groups', routes.createExerciseGroup);
+app.get('/exercise-groups/:id/exercises', routes.getExerciseGroupExercises);
+app.post('/exercise-groups/:id/exercises', routes.addExerciseToExerciseGroup);
+app.get('/plans/:id/groups', routes.getExerciseGroupsByPlan);
+
+
 // Start the server
 console.log(`Server is running on port ${config.port}`);
 export default {

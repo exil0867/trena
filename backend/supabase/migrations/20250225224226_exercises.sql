@@ -9,7 +9,8 @@ CREATE TABLE exercises (
 );
 
 CREATE TABLE routine_exercises (
-    routine_id UUID REFERENCES routines(id) ON DELETE CASCADE,
-    exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE,
-    PRIMARY KEY (routine_id, exercise_id)
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    routine_id UUID NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+    UNIQUE (routine_id, exercise_id)
 );

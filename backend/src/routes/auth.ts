@@ -6,7 +6,7 @@ import { query } from '../lib/database';
 import bcrypt from "bcryptjs";
 
 
-function generateTokens(user) {
+function generateTokens(user: { id: any; email: any; role: any; }) {
   const accessToken = jwt.sign(
     { sub: user.id, email: user.email, role: user.role },
     config.jwtSecret,

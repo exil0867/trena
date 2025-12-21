@@ -49,6 +49,7 @@ export const ExerciseLogSchema = z.object({
 export const UpsertExerciseLogSchema = ExerciseLogSchema.omit({ id: true, created_at: true });
 
 export const RoutineResponseSchema = z.object({
+    id: z.string().uuid().optional(),
     routine_id: z.string().uuid(),
     routine_name: z.string(),
     exercises: z.array(ExerciseSchema),
