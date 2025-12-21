@@ -234,19 +234,19 @@ export async function getExerciseLogsByUser(c: Context) {
         l.metrics,
         l.created_at,
         l.exercise_id,
-        l.routine_id,
+        l.routine_exercise_id,
         e.id as ex_id,
         e.name as ex_name,
         e.tracking_type as ex_tracking_type,
         e.description as ex_description,
-        r.id as routine_id,
+        r.id as routine_exercise_id,
         r.name as routine_name,
         r.day_of_week,
         p.id as plan_id,
         p.name as plan_name
       FROM exercise_logs l
       JOIN exercises e ON l.exercise_id = e.id
-      JOIN routines r ON l.routine_id = r.id
+      JOIN routines r ON l.routine_exercise_id = r.id
       JOIN plans p ON r.plan_id = p.id
       WHERE p.account_id = $1
       ORDER BY l.created_at DESC
@@ -257,7 +257,7 @@ export async function getExerciseLogsByUser(c: Context) {
       metrics: row.metrics,
       created_at: row.created_at,
       exercise_id: row.exercise_id,
-      routine_id: row.routine_id,
+      routine_exercise_id: row.routine_exercise_id,
       plan_id: row.plan_id,
       // routine_id: row.routine,
       exercise: {
@@ -271,7 +271,7 @@ export async function getExerciseLogsByUser(c: Context) {
         name: row.plan_name
       },
       routine: {
-        id: row.routine_id,
+        id: row.routine_exercise_id,
         name: row.rountine_name,
         day_of_week: row.day_of_week
       }
