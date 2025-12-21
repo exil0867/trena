@@ -26,12 +26,25 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+          packages: ""
+
+      - name: Install Android SDK components
+        run: |
+          sdkmanager \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006"
 
       - name: Install JS dependencies
         run: |
           cd frontend
-          npm install
+          pnpm install
 
       - name: Decode Android keystore
         run: |

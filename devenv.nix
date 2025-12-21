@@ -7,6 +7,8 @@
       POSTGRES_DB = "trena";
       POSTGRES_PORT = 54300;
       POSTGRES_HOST = "127.0.0.1";
+      ANDROID_KEYSTORE_PATH = "trena-release.keystore";
+      ANDROID_KEY_ALIAS = "trena";
 
       # PGUSER = "postgres";
       # PGPASSWORD = "postgres";
@@ -18,8 +20,10 @@
 {
   env = env;
 
+  dotenv.enable = true;
+
   # https://devenv.sh/packages/
-  packages = [ pkgs.jq pkgs.watchman pkgs.tmux pkgs.bun pkgs.postgresql ];
+  packages = [ pkgs.jq pkgs.watchman pkgs.tmux pkgs.bun pkgs.postgresql pkgs.eas-cli ];
 
   services.postgres = {
     enable = true;
@@ -42,7 +46,7 @@
 
       -- Set database owner
       ALTER DATABASE "${env.POSTGRES_DB}" OWNER TO "${env.POSTGRES_USER}";
-      
+
       \c "${env.POSTGRES_DB}";
       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     '';
@@ -90,9 +94,11 @@
 
   android = {
     enable = true;
-    platforms.version = ["34" "35"];
     reactNative.enable = true;
-    buildTools.version = ["34.0.0" "35.0.0"];
+    ndk.enable = true;
+    platforms.version = [ "36" ];
+    buildTools.version = [ "36.0.0" ];
+    ndk.version = [ "27.1.12297006" ];
   };
 
   # https://devenv.sh/languages/

@@ -18,6 +18,9 @@
     "slug": "trena",
     "android": {
       "package": "com.exil0548.trena"
+    },
+    "ios": {
+      "bundleIdentifier": "com.exil0548.trena"
     }
   }
 }
