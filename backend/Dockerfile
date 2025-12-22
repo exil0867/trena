@@ -1,16 +1,16 @@
-FROM oven/bun:1.0.26
+FROM node:24-bookworm-slim
 
 WORKDIR /app
 
-COPY package.json .
-COPY bun.lockb .
+# Install deps first (better cache)
+COPY backend/package.json backend/pnpm-lock.yaml ./
+RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN pnpm install --frozen-lockfile --prod
 
-RUN bun install --production
-
-COPY . .
-
-ENV PORT=3004
+# Copy source and build
+COPY backend ./
+RUN pnpm run build
 
 EXPOSE 3004
 
-CMD ["bun", "start"]
+CMD ["node", "dist/index.js"]
