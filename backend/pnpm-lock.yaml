@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hono/node-server':
+        specifier: ^1.19.7
+        version: 1.19.7(hono@4.7.6)
       '@hono/zod-validator':
         specifier: ^0.1.11
         version: 0.1.11(hono@4.7.6)(zod@3.24.2)
@@ -53,6 +56,12 @@ importers:
         version: 5.9.3
 
 packages:
+
+  '@hono/node-server@1.19.7':
+    resolution: {integrity: sha512-vUcD0uauS7EU2caukW8z5lJKtoGMokxNbJtBiwHgpqxEXokaHCBkQUmCHhjFB1VUTWdqj25QoMkMKzgjq+uhrw==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@hono/zod-validator@0.1.11':
     resolution: {integrity: sha512-PQXeHUP0+36qpRt8yfeD7N2jbK3ETlGvSN6dMof/HwUC/APRokQRjpXZm4rrlG71Ft0aWE01+Bm4XejqPie5Uw==}
@@ -257,6 +266,10 @@ packages:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
 snapshots:
+
+  '@hono/node-server@1.19.7(hono@4.7.6)':
+    dependencies:
+      hono: 4.7.6
 
   '@hono/zod-validator@0.1.11(hono@4.7.6)(zod@3.24.2)':
     dependencies:

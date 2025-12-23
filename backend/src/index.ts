@@ -4,6 +4,7 @@ import { jwt } from 'hono/jwt';
 import { config } from './config.js';
 // import { createClient } from '@supabase/supabase-js';
 import * as routes from './routes/index.js';
+import { serve } from '@hono/node-server';
 
 // Create a Supabase client
 // export const supabase = createClient(config.supabaseUrl, config.supabaseKey);
@@ -68,9 +69,11 @@ app.post('/exercise-groups/:id/exercises', routes.addExerciseToExerciseGroup);
 app.get('/plans/:id/groups', routes.getExerciseGroupsByPlan);
 
 
-// Start the server
-console.log(`Server is running on port ${config.port}`);
-export default {
-    port: config.port,
-    fetch: app.fetch,
-};
+const port = Number(config.port ?? 3004);
+
+serve({
+  fetch: app.fetch,
+  port,
+});
+
+console.log(`Server is running on port ${port}`);
