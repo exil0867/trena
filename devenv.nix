@@ -61,7 +61,6 @@
   };
 
   tasks = {
-    # Reset Postgres state (wipe PGDATA)
     "db:reset" = {
       description = "Reset PostgreSQL data directory";
       exec = ''
@@ -71,8 +70,8 @@
       '';
     };
 
-    "db:setup" = {
-      description = "Run migrations and seed";
+    "db:migrate" = {
+      description = "Run schema migrations only";
       exec = ''
         export PGHOST=127.0.0.1
         export PGPORT=${toString env.POSTGRES_PORT}
@@ -80,17 +79,37 @@
         export PGPASSWORD=${env.POSTGRES_PASSWORD}
         export PGDATABASE=${env.POSTGRES_DB}
 
-        for f in backend/supabase/migrations/*.sql; do
-          echo "Applying $f"
-          psql -f "$f"
+        for f in backend/db/migrations/*.sql; do
+          echo "Applying migration $${f}"
+          psql -v ON_ERROR_STOP=1 -f "$${f}"
         done
+      '';
+    };
 
-        echo "Applying seed.sql"
-        psql -f backend/supabase/seed.sql
+    "db:seed:dev" = {
+      description = "Seed dev database";
+      exec = ''
+        export PGHOST=127.0.0.1
+        export PGPORT=${toString env.POSTGRES_PORT}
+        export PGUSER=${env.POSTGRES_USER}
+        export PGPASSWORD=${env.POSTGRES_PASSWORD}
+        export PGDATABASE=${env.POSTGRES_DB}
+
+        echo "Seeding dev data"
+        psql -v ON_ERROR_STOP=1 -f backend/db/seeds/dev.sql
+      '';
+    };
+
+    "db:setup" = {
+      description = "Fresh DB: migrate + seed (dev only)";
+      exec = ''
+        devenv run db:migrate
+        devenv run db:seed:dev
       '';
     };
 
   };
+
 
   android = {
     enable = true;
