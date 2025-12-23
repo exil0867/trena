@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { getAccessToken, getCurrentUser } from './auth';
-
-const envSchema = z.object({
-    EXPO_PUBLIC_API_URL: z.string().url(),
-});
-
-const env = envSchema.parse(process.env);
+import { env } from '@/env';
 
 const API_URL = env.EXPO_PUBLIC_API_URL;
 

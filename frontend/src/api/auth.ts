@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import { z } from "zod";
@@ -5,11 +6,6 @@ import { z } from "zod";
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
-const envSchema = z.object({
-    EXPO_PUBLIC_API_URL: z.string().url(),
-});
-
-const env = envSchema.parse(process.env);
 
 export async function saveTokens(access: string, refresh: string) {
   await AsyncStorage.multiSet([

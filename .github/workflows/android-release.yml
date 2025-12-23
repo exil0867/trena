@@ -51,16 +51,15 @@ jobs:
           cd frontend
           pnpm install
 
+      - name: Write production Expo env
+        run: |
+          cat <<EOF > frontend/.env
+          EXPO_PUBLIC_API_URL=https://trena-api.kyrena.dev
+          EOF
+
       - name: Decode Android keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/app/trena-release.keystore
-
-      - name: Export Expo bundle
-        env:
-          EXPO_PUBLIC_API_URL: https://trena-api.kyrena.dev
-        run: |
-          cd frontend
-          npx expo export --platform android --clear
 
       - name: Build release APK
         env:
