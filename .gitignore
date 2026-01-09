@@ -21,3 +21,5 @@ devenv.local.nix
 
 .env
 local.properties
+
+node_modules

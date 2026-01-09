@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch dist/index.js",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:migrate": "./scripts/db-migrate.sh",
+    "db:seed:dev": "psql -f db/seeds/dev.sql"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.7",
@@ -24,6 +26,7 @@
     "@types/node": "^20.11.0",
     "@types/pg": "^8.15.5",
     "@types/uuid": "^9.0.8",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.0"
   }
 }

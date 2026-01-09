@@ -1,7 +1,16 @@
 {
-	"dependencies": {
-		"zod": "^3.24.2",
-		"@supabase/supabase-js": "^2.49.4",
-		"@react-native-async-storage/async-storage": "^2.1.2"
-	}
+  "name": "trena",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "dev:backend": "pnpm --filter trena-backend dev",
+    "dev:frontend": "pnpm --filter trena-frontend dev",
+
+    "build": "pnpm -r run build",
+    "start": "pnpm --filter trena-backend start",
+
+    "db:migrate": "pnpm --filter trena-backend run db:migrate",
+    "db:seed": "pnpm --filter trena-backend run db:seed:dev"
+  }
 }

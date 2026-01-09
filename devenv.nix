@@ -1,83 +1,109 @@
 { pkgs, lib, config, inputs, ... }:
-  let
-    pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-    env = {
-      POSTGRES_USER = "exil0681";
-      POSTGRES_PASSWORD = "postgres";
-      POSTGRES_DB = "trena";
-      POSTGRES_PORT = 54300;
-      POSTGRES_HOST = "127.0.0.1";
-      ANDROID_KEYSTORE_PATH = "trena-release.keystore";
-      ANDROID_KEY_ALIAS = "trena";
 
-      # PGUSER = "postgres";
-      # PGPASSWORD = "postgres";
-      # PGDATABASE = "trena";
-      # PGPORT = "54300";
-      # PGHOST = "127.0.0.1";
-    };
-  in
+let
+  pkgs-unstable = import inputs.nixpkgs-unstable {
+    system = pkgs.stdenv.system;
+  };
+
+
+  env = {
+    DB_HOST = "127.0.0.1";
+    DB_PORT = "54300";
+    DB_USER = builtins.getEnv "USER";
+    DB_PASSWORD = "postgres";
+    JWT_SECRET= "super-secret-jwt-token-with-at-least-32-characters-long";
+    DB_NAME = "trena";
+
+    # === Android ===
+    ANDROID_KEYSTORE_PATH = "trena-release.keystore";
+    ANDROID_KEY_ALIAS = "trena";
+  };
+in
 {
   env = env;
 
   dotenv.enable = true;
 
-  # https://devenv.sh/packages/
-  packages = [ pkgs.jq pkgs.watchman pkgs.tmux pkgs.bun pkgs.postgresql pkgs.eas-cli ];
+  packages = [
+    pkgs.jq
+    pkgs.watchman
+    pkgs.tmux
+    pkgs.bun
+    pkgs.postgresql
+    pkgs.eas-cli
+    pkgs.tree
+  ];
 
   services.postgres = {
     enable = true;
-    package = pkgs-unstable.postgresql_18;
+
+    package = pkgs.postgresql_16;
 
     listen_addresses = "127.0.0.1";
-    port = env.POSTGRES_PORT;
+    port = lib.toInt env.DB_PORT;
+
+    initialDatabases = [
+      { name = env.DB_NAME; }
+    ];
 
     initialScript = ''
-      -- Create role if it doesn't exist, or update password if it does
       DO $$
       BEGIN
-        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${env.POSTGRES_USER}') THEN
-          CREATE ROLE "${env.POSTGRES_USER}" WITH SUPERUSER LOGIN PASSWORD '${env.POSTGRES_PASSWORD}';
+        IF NOT EXISTS (
+          SELECT FROM pg_catalog.pg_roles
+          WHERE rolname = '${env.DB_USER}'
+        ) THEN
+          CREATE ROLE "${env.DB_USER}"
+            WITH LOGIN SUPERUSER PASSWORD '${env.DB_PASSWORD}';
         ELSE
-          ALTER ROLE "${env.POSTGRES_USER}" WITH SUPERUSER LOGIN PASSWORD '${env.POSTGRES_PASSWORD}';
+          ALTER ROLE "${env.DB_USER}"
+            WITH LOGIN SUPERUSER PASSWORD '${env.DB_PASSWORD}';
         END IF;
       END
       $$;
 
-      -- Set database owner
-      ALTER DATABASE "${env.POSTGRES_DB}" OWNER TO "${env.POSTGRES_USER}";
+      ALTER DATABASE "${env.DB_NAME}"
+        OWNER TO "${env.DB_USER}";
 
-      \c "${env.POSTGRES_DB}";
+      \c "${env.DB_NAME}";
       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     '';
-
-    initialDatabases = [
-      {
-        name = env.POSTGRES_DB;
-        # user = "postgres";
-        # pass = "postgres";
-      }
-    ];
   };
-
   tasks = {
-    "db:reset" = {
-      description = "Reset PostgreSQL data directory";
+
+    "db:migrate" = {
+      description = "Apply DB migrations";
       exec = ''
-        set -o errexit
-        echo "Deleting PostgreSQL data in ''${PGDATA}"
-        [[ -e "''${PGDATA}" ]] && rm -rf "''${PGDATA}"
+        set -euo pipefail
+
+        export PGHOST=${env.DB_HOST}
+        export PGPORT=${env.DB_PORT}
+        export PGUSER=${env.DB_USER}
+        export PGPASSWORD=${env.DB_PASSWORD}
+        export PGDATABASE=${env.DB_NAME}
+
+        ./backend/scripts/db-migrate.sh
       '';
     };
 
-    "db:migrate" = {
-      description = "Apply pending migrations (tracked)";
+    "db:reset" = {
+      description = "Drop, recreate, and migrate database";
       exec = ''
-        export PGHOST=127.0.0.1
-        export PGPORT=${toString env.POSTGRES_PORT}
-        export PGUSER=${env.POSTGRES_USER}
-        export PGPASSWORD=${env.POSTGRES_PASSWORD}
-        export PGDATABASE=${env.POSTGRES_DB}
+        set -euo pipefail
+
+        export PGHOST=${env.DB_HOST}
+        export PGPORT=${env.DB_PORT}
+        export PGUSER=${env.DB_USER}
+        export PGPASSWORD=${env.DB_PASSWORD}
+        export PGDATABASE=postgres
+
+        psql -v ON_ERROR_STOP=1 \
+          -c "DROP DATABASE IF EXISTS ${env.DB_NAME};"
+
+        psql -v ON_ERROR_STOP=1 \
+          -c "CREATE DATABASE ${env.DB_NAME} OWNER ${env.DB_USER};"
+
+        export PGDATABASE=${env.DB_NAME}
 
         ./backend/scripts/db-migrate.sh
       '';
@@ -86,19 +112,19 @@
     "db:seed:dev" = {
       description = "Seed dev database";
       exec = ''
-        export PGHOST=127.0.0.1
-        export PGPORT=${toString env.POSTGRES_PORT}
-        export PGUSER=${env.POSTGRES_USER}
-        export PGPASSWORD=${env.POSTGRES_PASSWORD}
-        export PGDATABASE=${env.POSTGRES_DB}
+        set -euo pipefail
 
-        echo "Seeding dev data"
-        psql -v ON_ERROR_STOP=1 -f backend/db/seeds/dev.sql
+        export PGHOST=${env.DB_HOST}
+        export PGPORT=${env.DB_PORT}
+        export PGUSER=${env.DB_USER}
+        export PGPASSWORD=${env.DB_PASSWORD}
+        export PGDATABASE=${env.DB_NAME}
+
+        psql -v ON_ERROR_STOP=1 \
+          -f backend/db/seeds/dev.sql
       '';
     };
-
   };
-
 
   android = {
     enable = true;
@@ -109,16 +135,8 @@
     ndk.version = [ "27.1.12297006" ];
   };
 
-  # https://devenv.sh/languages/
   languages = {
-    # go.enable = true;
-    javascript.pnpm.enable = true;
     javascript.enable = true;
+    javascript.pnpm.enable = true;
   };
-
-  # enterShell = ''
-  #   supabase --version
-  # '';
-
-  # See full reference at https://devenv.sh/reference/options/
 }

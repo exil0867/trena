@@ -7,7 +7,10 @@ set -euo pipefail
 : "${PGPASSWORD:?}"
 : "${PGDATABASE:?}"
 
+MIGRATIONS_DIR="${MIGRATIONS_DIR:-$(cd "$(dirname "$0")/../db/migrations" && pwd)}"
+
 echo "==> Running DB migrations on $PGHOST:$PGPORT/$PGDATABASE"
+echo "==> Using migrations from $MIGRATIONS_DIR"
 
 psql <<'SQL'
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -16,7 +19,9 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 );
 SQL
 
-for f in /app/db/migrations/*.sql; do
+shopt -s nullglob
+
+for f in "$MIGRATIONS_DIR"/*.sql; do
   name=$(basename "$f")
 
   applied=$(psql -tA -c \
