@@ -1,5 +1,3 @@
-// context/AuthContext.tsx
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { getAccessToken, getCurrentUser, signOut as apiSignOut } from "@/api/auth";
 
@@ -14,13 +12,14 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
-  // Optionally signIn if you want to wrap fetch & save
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   signOut: async () => {},
+  refreshUser: async () => {},
 });
 
 export function useAuth() {
@@ -31,20 +30,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function bootstrap() {
+  const bootstrap = async () => {
     try {
       const token = await getAccessToken();
-      if (token) {
-        const payload = await getCurrentUser();  // you already have this
-        console.log(payload)
-        if (payload && payload.exp * 1000 > Date.now()) {
-          setUser(payload);
-        } else {
-          // expired or invalid
-          await apiSignOut();
-          setUser(null);
-        }
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const payload = await getCurrentUser();
+      if (payload && payload.exp * 1000 > Date.now()) {
+        setUser(payload);
       } else {
+        await apiSignOut();
         setUser(null);
       }
     } catch (err) {
@@ -53,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     bootstrap();
@@ -65,7 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        signOut,
+        refreshUser: bootstrap,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

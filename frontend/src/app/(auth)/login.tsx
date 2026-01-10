@@ -5,6 +5,7 @@ import { Link, router } from "expo-router";
 import { Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signIn, signUp } from "@/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthPage() {
     const [email, setEmail] = useState("");
@@ -13,26 +14,27 @@ export default function AuthPage() {
     const [error, setError] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     const { top, bottom } = useSafeAreaInsets();
+  const { refreshUser } = useAuth();
 
     async function handleAuthentication() {
         setLoading(true);
         setError("");
 
-        try {
-
-            if (isLogin) {
-                const result = await signIn(email, password)
-                if (result) router.replace("/");
-            } else {
-                const result = await signUp(email, password)
-                if (result) router.replace("/");
-            }
-        } catch (error: any) {
-            setError(error.message || "An unexpected error occurred");
-        } finally {
-            setLoading(false);
+       try {
+      if (isLogin) {
+        await signIn(email, password);
+        } else {
+          await signUp(email, password);
         }
-    }
+
+        await refreshUser();
+
+        } catch (err: any) {
+          setError(err.message || "Authentication failed");
+        } finally {
+          setLoading(false);
+        }
+      }
 
     return (
         <KeyboardAvoidingView
