@@ -311,3 +311,62 @@ export const fetchUserActivitiesByActivityId = async (activityId: string) => {
     }
     return response.json();
 };
+
+export interface BodyweightLog {
+  id: string;
+  weight_kg: number;
+  original_value: number;
+  original_unit: 'kg' | 'lb';
+  notes: string | null;
+  recorded_at: string;
+  created_at: string;
+}
+
+export const fetchBodyweightLogs = async (): Promise<BodyweightLog[]> => {
+  const response = await fetch(`${API_URL}/users/bodyweight-logs`, {
+    headers: await getHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch bodyweight logs');
+  }
+
+  const data: BodyweightLog[] = await response.json();
+
+  // Defensive sort
+  data.sort(
+    (a, b) =>
+      new Date(b.recorded_at).getTime() -
+      new Date(a.recorded_at).getTime()
+  );
+
+  return data;
+};
+
+export const logBodyweight = async (
+  value: number,
+  unit: 'kg' | 'lb' = 'kg',
+  recordedAt?: string,
+  notes?: string
+): Promise<BodyweightLog> => {
+  if (!value || value <= 0) {
+    throw new Error('Invalid bodyweight value');
+  }
+
+  const response = await fetch(`${API_URL}/bodyweight-logs`, {
+    method: 'POST',
+    headers: await getHeaders(),
+    body: JSON.stringify({
+      value,
+      unit,
+      recorded_at: recordedAt,
+      notes: notes?.trim() || undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to log bodyweight');
+  }
+
+  return response.json();
+};

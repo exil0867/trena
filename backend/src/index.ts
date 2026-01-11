@@ -68,6 +68,10 @@ app.get('/exercise-groups/:id/exercises', routes.getExerciseGroupExercises);
 app.post('/exercise-groups/:id/exercises', routes.addExerciseToExerciseGroup);
 app.get('/plans/:id/groups', routes.getExerciseGroupsByPlan);
 
+// Bodyweight tracking
+app.post('/bodyweight-logs', routes.logBodyweight);
+app.get('/users/bodyweight-logs', routes.getBodyweightLogsByUser);
+
 
 const port = Number(config.port ?? 3004);
 

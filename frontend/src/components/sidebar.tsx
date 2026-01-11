@@ -77,6 +77,7 @@ export default function Sidebar({ sidebarVisible, width }) {
                     <NavLink href="/logs" iconName="clipboard-outline" label="Log Exercise" />
                     <NavLink href="/history" iconName="time-outline" label="History" />
                     <NavLink href="/exercises" iconName="barbell-outline" label="Exercises" />
+                    <NavLink href="/bodyweight" iconName="scale-outline" label="Bodyweight" />
                 </ScrollView>
 
                 <View style={styles.footer}>

@@ -56,6 +56,14 @@ export const RoutineResponseSchema = z.object({
     exercises: z.array(ExerciseSchema),
 });
 
+export const UpsertBodyweightLogSchema = z.object({
+  value: z.number().positive(),
+  unit: z.enum(['kg', 'lb']).default('kg'),
+  recorded_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+
 export type User = z.infer<typeof UserSchema>;
 export type Plan = z.infer<typeof PlanSchema>;
 export type UpsertPlan = z.infer<typeof UpsertPlanSchema>;
