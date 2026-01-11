@@ -103,25 +103,31 @@ export async function refreshToken(c: Context) {
   }
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+}
 
-export async function getCurrentUser(c: Context) {
-    const authHeader = c.req.header('Authorization');
+export function getCurrentUser(c: Context): AuthUser {
+  const payload = c.get('jwtPayload');
 
-    if (!authHeader) {
-        return c.json({ error: 'Unauthorized' }, 401);
-    }
+  if (!payload) {
+    throw new Error('Unauthenticated');
+  }
 
-    const token = authHeader.replace('Bearer ', '');
+  return {
+    id: payload.sub,
+    email: payload.email,
+    role: payload.role,
+  };
+}
 
-    try {
-        const decoded = jwt.verify(token, config.jwtSecret) as jwt.JwtPayload;
-
-        return c.json({
-            id: decoded.sub,
-            email: decoded.email,
-            role: decoded.role,
-        });
-    } catch (err) {
-        return c.json({ error: 'Invalid token', details: String(err) }, 401);
-    }
+export async function getCurrentUserRoute(c: Context) {
+  try {
+    const user = getCurrentUser(c);
+    return c.json(user);
+  } catch {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
 }

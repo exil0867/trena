@@ -180,9 +180,7 @@ export async function logExercise(c: Context) {
     const body = await c.req.json();
     const logData = UpsertExerciseLogSchema.parse(body);
 
-    const userResult = await getCurrentUser(c);
-    const accountIdObject = await userResult.json();
-    const accountId = accountIdObject.id;
+    const { id: accountId } =getCurrentUser(c);
 
     const routineExerciseResult = await query(`
       SELECT id FROM routine_exercises WHERE routine_id = $1 AND exercise_id = $2;
@@ -245,9 +243,7 @@ export async function logExercise(c: Context) {
 }
 
 export async function getExerciseLogsByUser(c: Context) {
-  const userResult = await getCurrentUser(c);
-  const accountIdObject = await userResult.json();
-  const accountId = accountIdObject.id;
+  const { id: accountId } =getCurrentUser(c);
 
   try {
     const result = await query(`

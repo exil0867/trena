@@ -23,25 +23,24 @@ app.use(cors({
 // Auth middleware (exclude certain routes)
 const excludedPaths = ['/auth/signup', '/auth/login', '/auth/refresh', '/auth/user'];
 
-// app.use('*', async (c, next) => {
-//     const path = c.req.path;
-//     if (excludedPaths.includes(path)) {
-//         return next();
-//     }
+app.use('*', async (c, next) => {
+  const path = c.req.path;
+  if (excludedPaths.includes(path)) {
+    return next();
+  }
 
-//     // Continue with JWT authentication
-//     const jwtMiddleware = jwt({
-//         secret: config.jwtSecret,
-//     });
+  const jwtMiddleware = jwt({
+    secret: config.jwtSecret,
+  });
 
-//     return jwtMiddleware(c, next);
-// });
+  return jwtMiddleware(c, next);
+});
 
 // Auth routes
 app.post('/auth/signup', routes.signUp);
 app.post('/auth/login', routes.signIn);
 app.post('/auth/refresh', routes.refreshToken);
-app.get('/auth/user', routes.getCurrentUser);
+app.get('/auth/user', routes.getCurrentUserRoute);
 
 // Plan routes
 app.get('/plans/:id', routes.getPlan);

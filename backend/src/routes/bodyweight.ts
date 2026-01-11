@@ -12,8 +12,7 @@ export async function logBodyweight(c: Context) {
     const body = await c.req.json();
     const data = UpsertBodyweightLogSchema.parse(body);
 
-    const userResult = await getCurrentUser(c);
-    const { id: accountId } = await userResult.json();
+    const { id: accountId } =getCurrentUser(c);
 
     const weightKg =
       data.unit === 'lb' ? lbToKg(data.value) : data.value;
@@ -48,8 +47,7 @@ export async function logBodyweight(c: Context) {
 
 export async function getBodyweightLogsByUser(c: Context) {
   try {
-    const userResult = await getCurrentUser(c);
-    const { id: accountId } = await userResult.json();
+    const { id: accountId } =getCurrentUser(c);
 
     const result = await query(
       `SELECT
