@@ -1,5 +1,5 @@
+// backend/src/routes/auth.ts
 import { Context } from 'hono';
-import { AuthResponse } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { query } from '../lib/database/index.js';
@@ -10,13 +10,13 @@ function generateTokens(user: { id: any; email: any; role: any; }) {
   const accessToken = jwt.sign(
     { sub: user.id, email: user.email, role: user.role },
     config.jwtSecret,
-    { expiresIn: "15m" }
+    { expiresIn: config.accessTokenExpiry }
   );
 
   const refreshToken = jwt.sign(
     { sub: user.id },
     config.jwtSecret,
-    { expiresIn: "7d" }
+    { expiresIn: config.refreshTokenExpiry }
   );
 
   return { accessToken, refreshToken };
