@@ -243,7 +243,7 @@ interface createExerciseGroupResponse {
     name: string,
 }
 
-export const createExerciseGroup = async (planId: string, currentDay: number | null, newGroupName: string): Promise<createExerciseGroupResponse[]> => {
+export const createExerciseGroup = async (planId: string, currentDay: number | null, newGroupName: string): Promise<createExerciseGroupResponse> => {
 
     const response = await fetch(`${API_URL}/exercise-groups`, {
         method: 'POST',

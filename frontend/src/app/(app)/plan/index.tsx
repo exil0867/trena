@@ -144,7 +144,7 @@ export default function PlanDetailScreen() {
 
         try {
             const newGroup = await createExerciseGroup(plan.id, currentDay, newGroupName);
-            setGroups((prev) => [...prev, newGroup[0]]);
+            setGroups((prev) => [...prev, newGroup]);
             setNewGroupName("");
             setGroupDialogVisible(false);
         } catch (error) {
