@@ -180,11 +180,21 @@ export async function logExercise(c: Context) {
     const body = await c.req.json();
     const logData = UpsertExerciseLogSchema.parse(body);
 
-    const userResult = await getCurrentUser(c)
+    const userResult = await getCurrentUser(c);
+    const accountIdObject = await userResult.json();
+    const accountId = accountIdObject.id;
 
-    const accountIdObject = await userResult.json()
+    const routineExerciseResult = await query(`
+      SELECT id FROM routine_exercises WHERE routine_id = $1 AND exercise_id = $2;
+      `,
+      [logData.routine_id, logData.exercise_id]
+    )
 
-    const accountId = accountIdObject.id
+    if (routineExerciseResult.rowCount === 0) {
+      return c.json({ error: "Exercise routine not found" }, 404);
+    }
+
+    const routineExercise = routineExerciseResult.rows[0];
 
     // Fetch exercise details
     const exerciseResult = await query(
@@ -198,21 +208,33 @@ export async function logExercise(c: Context) {
 
     // Insert log
     const logResult = await query(
-      `INSERT INTO exercise_logs (account_id, exercise_id, metrics, created_at)
-       VALUES ($1, $2, $3, NOW())
+      `INSERT INTO exercise_logs (account_id, exercise_id, routine_exercise_id, metrics, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
        RETURNING *`,
       [
         accountId,
         logData.exercise_id,
-        logData.metrics,
+        routineExercise.id,
+        JSON.stringify(logData.metrics),
       ]
     );
 
     const insertedLog = logResult.rows[0];
 
+    // Return complete response with exercise details
     return c.json({
-      ...insertedLog,
-      exercise,
+      id: insertedLog.id,
+      account_id: insertedLog.account_id,
+      exercise_id: insertedLog.exercise_id,
+      routine_exercise_id: insertedLog.routine_exercise_id,
+      metrics: insertedLog.metrics,
+      created_at: insertedLog.created_at,
+      exercise: {
+        id: exercise.id,
+        name: exercise.name,
+        tracking_type: exercise.tracking_type,
+        description: exercise.description,
+      }
     });
   } catch (err) {
     return c.json(

@@ -42,6 +42,7 @@ export const RoutineExerciseSchema = z.object({
 export const ExerciseLogSchema = z.object({
     id: z.string().uuid().optional(),
     exercise_id: z.string().uuid(),
+    routine_id: z.string().uuid(),
     metrics: z.record(z.any()),
     created_at: z.string().optional(),
 });

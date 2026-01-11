@@ -198,7 +198,7 @@ export const fetchLogs = async (): Promise<ExerciseLogsResponse> => {
 
 export type ExerciseMetrics = StrengthMetrics | CardioMetrics;
 
-export const logExercise = async (selectedExerciseId: string, sets: string, reps: string, weight: string, notes: string) => {
+export const logExercise = async (selectedExerciseId: string, selectedRoutineId: string, sets: string, reps: string, weight: string, notes: string) => {
     if (!selectedExerciseId || !sets || !reps) return;
 
     const user = await getCurrentUser();
@@ -210,6 +210,7 @@ export const logExercise = async (selectedExerciseId: string, sets: string, reps
             headers: await getHeaders(),
             body: JSON.stringify({
                 exercise_id: selectedExerciseId,
+                routine_id: selectedRoutineId,
                 metrics: {
                     sets: parseInt(sets),
                     reps: parseInt(reps),

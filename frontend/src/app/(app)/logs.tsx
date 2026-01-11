@@ -159,6 +159,7 @@ export default function LogsScreen() {
         try {
             const newLog = await logExercise(
                 selectedExercise.id,
+                selectedGroup.id,
                 sets,
                 reps,
                 weight,
