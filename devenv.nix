@@ -1,25 +1,27 @@
-{ pkgs, lib, config, inputs, ... }:
-
-let
+{
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
+}: let
   pkgs-unstable = import inputs.nixpkgs-unstable {
     system = pkgs.stdenv.system;
   };
 
-
   env = {
     DB_HOST = "127.0.0.1";
     DB_PORT = "54300";
-    DB_USER = builtins.getEnv "USER";
+    DB_USER = "trena_dev";
     DB_PASSWORD = "postgres";
-    JWT_SECRET= "super-secret-jwt-token-with-at-least-32-characters-long";
+    JWT_SECRET = "super-secret-jwt-token-with-at-least-32-characters-long";
     DB_NAME = "trena";
 
     # === Android ===
     ANDROID_KEYSTORE_PATH = "trena-release.keystore";
     ANDROID_KEY_ALIAS = "trena";
   };
-in
-{
+in {
   env = env;
 
   dotenv.enable = true;
@@ -43,7 +45,7 @@ in
     port = lib.toInt env.DB_PORT;
 
     initialDatabases = [
-      { name = env.DB_NAME; }
+      {name = env.DB_NAME;}
     ];
 
     initialScript = ''
@@ -69,60 +71,25 @@ in
       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     '';
   };
-  tasks = {
+  scripts = {
+    "db:migration" = {
+      description = "Create a new SQL migration file";
+      exec = ''./scripts/db-migration.sh "$@"'';
+    };
 
     "db:migrate" = {
       description = "Apply DB migrations";
-      exec = ''
-        set -euo pipefail
-
-        export PGHOST=${env.DB_HOST}
-        export PGPORT=${env.DB_PORT}
-        export PGUSER=${env.DB_USER}
-        export PGPASSWORD=${env.DB_PASSWORD}
-        export PGDATABASE=${env.DB_NAME}
-
-        ./backend/scripts/db-migrate.sh
-      '';
+      exec = ''./scripts/db-migrate.sh'';
     };
 
     "db:reset" = {
       description = "Drop, recreate, and migrate database";
-      exec = ''
-        set -euo pipefail
-
-        export PGHOST=${env.DB_HOST}
-        export PGPORT=${env.DB_PORT}
-        export PGUSER=${env.DB_USER}
-        export PGPASSWORD=${env.DB_PASSWORD}
-        export PGDATABASE=postgres
-
-        psql -v ON_ERROR_STOP=1 \
-          -c "DROP DATABASE IF EXISTS ${env.DB_NAME};"
-
-        psql -v ON_ERROR_STOP=1 \
-          -c "CREATE DATABASE ${env.DB_NAME} OWNER ${env.DB_USER};"
-
-        export PGDATABASE=${env.DB_NAME}
-
-        ./backend/scripts/db-migrate.sh
-      '';
+      exec = ''./scripts/db-reset.sh'';
     };
 
     "db:seed:dev" = {
       description = "Seed dev database";
-      exec = ''
-        set -euo pipefail
-
-        export PGHOST=${env.DB_HOST}
-        export PGPORT=${env.DB_PORT}
-        export PGUSER=${env.DB_USER}
-        export PGPASSWORD=${env.DB_PASSWORD}
-        export PGDATABASE=${env.DB_NAME}
-
-        psql -v ON_ERROR_STOP=1 \
-          -f backend/db/seeds/dev.sql
-      '';
+      exec = ''./scripts/db-seed-dev.sh'';
     };
   };
 
@@ -130,9 +97,9 @@ in
     enable = true;
     reactNative.enable = true;
     ndk.enable = true;
-    platforms.version = [ "36" ];
-    buildTools.version = [ "36.0.0" ];
-    ndk.version = [ "27.1.12297006" ];
+    platforms.version = ["36"];
+    buildTools.version = ["36.0.0"];
+    ndk.version = ["27.1.12297006"];
   };
 
   languages = {
