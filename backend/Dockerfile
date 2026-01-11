@@ -48,13 +48,16 @@ COPY backend/package.json backend/
 # Install prod deps only for backend
 RUN pnpm install --filter trena-backend... --prod --frozen-lockfile
 
-# Copy compiled app
-COPY --from=build /app/backend/dist ./dist
+# Copy compiled app into backend/
+COPY --from=build /app/backend/dist ./backend/dist
 
 # Migrations
-COPY backend/db ./db
+COPY backend/db ./backend/db
 COPY backend/scripts/db-migrate.sh /usr/local/bin/db-migrate
 RUN chmod +x /usr/local/bin/db-migrate
+
+# Run from backend package root
+WORKDIR /app/backend
 
 EXPOSE 3004
 
