@@ -5,13 +5,23 @@ FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
+# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
-COPY backend/package.json backend/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-COPY backend ./
-RUN pnpm run build
+# Copy backend package manifest only (for cache)
+COPY backend/package.json backend/
+
+# Install ONLY backend deps from workspace
+RUN pnpm install --filter trena-backend... --frozen-lockfile
+
+# Copy backend source
+COPY backend ./backend
+
+# Build backend
+RUN pnpm --filter trena-backend build
 
 
 # =========================
@@ -21,19 +31,27 @@ FROM node:24-bookworm-slim
 
 WORKDIR /app
 
+# Runtime deps
 RUN apt-get update \
   && apt-get install -y --no-install-recommends postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
+# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
-COPY backend/package.json backend/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# App code
-COPY --from=build /app/dist ./dist
+# Copy backend package manifest
+COPY backend/package.json backend/
 
-# Migrations (read-only payload)
+# Install prod deps only for backend
+RUN pnpm install --filter trena-backend... --prod --frozen-lockfile
+
+# Copy compiled app
+COPY --from=build /app/backend/dist ./dist
+
+# Migrations
 COPY backend/db ./db
 COPY backend/scripts/db-migrate.sh /usr/local/bin/db-migrate
 RUN chmod +x /usr/local/bin/db-migrate
