@@ -70,7 +70,7 @@ export async function getRoutineExercises(c: Context) {
     // Fetch exercises in routine
     const exercisesResult = await query(
       `SELECT e.id, e.name, e.description, e.tracking_type
-       FROM routines_exercises re
+       FROM routine_exercises re
        JOIN exercises e ON re.exercise_id = e.id
        WHERE re.routine_id = $1`,
       [routineId]
@@ -223,58 +223,67 @@ export async function logExercise(c: Context) {
 }
 
 export async function getExerciseLogsByUser(c: Context) {
-  const userResult = await getCurrentUser(c)
-  const accountIdObject = await userResult.json()
-  const accountId = accountIdObject.id
+  const userResult = await getCurrentUser(c);
+  const accountIdObject = await userResult.json();
+  const accountId = accountIdObject.id;
 
   try {
     const result = await query(`
       SELECT
         l.id,
+        l.exercise_id,
         l.metrics,
         l.created_at,
-        l.exercise_id,
-        l.routine_exercise_id,
-        e.id as ex_id,
-        e.name as ex_name,
-        e.tracking_type as ex_tracking_type,
-        e.description as ex_description,
-        r.id as routine_exercise_id,
-        r.name as routine_name,
+
+        e.id AS ex_id,
+        e.name AS ex_name,
+        e.tracking_type AS ex_tracking_type,
+        e.description AS ex_description,
+
+        re.id AS routine_exercise_id,
+
+        r.id AS routine_id,
+        r.name AS routine_name,
         r.day_of_week,
-        p.id as plan_id,
-        p.name as plan_name
+
+        p.id AS plan_id,
+        p.name AS plan_name
       FROM exercise_logs l
       JOIN exercises e ON l.exercise_id = e.id
-      JOIN routines r ON l.routine_exercise_id = r.id
+      JOIN routine_exercises re ON l.routine_exercise_id = re.id
+      JOIN routines r ON re.routine_id = r.id
       JOIN plans p ON r.plan_id = p.id
-      WHERE p.account_id = $1
-      ORDER BY l.created_at DESC
+      WHERE l.account_id = $1
+      ORDER BY l.created_at DESC;
     `, [accountId]);
 
-    const formattedLogs = result.rows.map((row) => ({
+    const formattedLogs = result.rows.map(row => ({
       id: row.id,
+      exercise_id: row.exercise_id,
       metrics: row.metrics,
       created_at: row.created_at,
-      exercise_id: row.exercise_id,
+
       routine_exercise_id: row.routine_exercise_id,
+      routine_id: row.routine_id,
       plan_id: row.plan_id,
-      // routine_id: row.routine,
+
       exercise: {
         id: row.ex_id,
         name: row.ex_name,
         tracking_type: row.ex_tracking_type,
         description: row.ex_description,
       },
+
       plan: {
         id: row.plan_id,
-        name: row.plan_name
+        name: row.plan_name,
       },
+
       routine: {
-        id: row.routine_exercise_id,
-        name: row.rountine_name,
-        day_of_week: row.day_of_week
-      }
+        id: row.routine_id,
+        name: row.routine_name,
+        day_of_week: row.day_of_week,
+      },
     }));
 
     return c.json(formattedLogs);

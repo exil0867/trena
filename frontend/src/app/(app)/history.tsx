@@ -18,6 +18,7 @@ import { fetchLogs, fetchPlans, fetchExerciseGroupsByPlan, fetchExercises } from
 export default function HistoryScreen() {
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState([]);
+    const [allLogs, setAllLogs] = useState([]);
     const [plans, setPlans] = useState([]);
     const [exerciseGroups, setExerciseGroups] = useState([]);
     const [exercises, setExercises] = useState([]);
@@ -59,6 +60,7 @@ export default function HistoryScreen() {
             console.log('exercisesData data, ', exercisesData)
             console.log('exercisesData data, ', exercisesData)
             setLogs(logsData || []);
+            setAllLogs(logsData || []);
         } catch (error) {
             console.error("Error loading data:", error);
         } finally {
@@ -67,27 +69,45 @@ export default function HistoryScreen() {
     };
 
     const applyFilters = () => {
-      let filtered = [...logs];
+      let filtered = [...allLogs];
 
       if (selectedPlan) {
-        filtered = filtered.filter(log => log.plan_id === selectedPlan.id);
+        filtered = filtered.filter(
+          log => log.plan?.id === selectedPlan.id
+        );
       }
 
       if (selectedGroup) {
-        filtered = filtered.filter(log => log.group_id === selectedGroup.id);
+        filtered = filtered.filter(
+          log => log.routine?.id === selectedGroup.id
+        );
       }
 
       if (selectedExercise) {
-        filtered = filtered.filter(log => log.exercise_id === selectedExercise.id);
+        filtered = filtered.filter(
+          log => log.exercise_id === selectedExercise.id
+        );
       }
 
       if (searchTerm) {
-        const lowerSearch = searchTerm.toLowerCase();
-        filtered = filtered.filter(log => log.exercise.name.toLowerCase().includes(lowerSearch));
+        const lower = searchTerm.toLowerCase();
+        filtered = filtered.filter(
+          log => log.exercise?.name?.toLowerCase().includes(lower)
+        );
       }
 
       setLogs(filtered);
     };
+
+    useEffect(() => {
+      setSelectedGroup(null);
+      setSelectedExercise(null);
+    }, [selectedPlan]);
+
+    useEffect(() => {
+      setSelectedExercise(null);
+    }, [selectedGroup]);
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -108,8 +128,9 @@ export default function HistoryScreen() {
                 {formatDate(item.created_at)}
             </Text>
             <Text className="text-sm text-gray-600 dark:text-gray-400">
-                {item.plan_name || "Unknown Plan"} • {item.group_name || "Unknown Group"}
+              {item.plan?.name || "Unknown Plan"} • {item.routine?.name || "Unknown Routine"}
             </Text>
+
             <View className="flex-row justify-around mt-2">
                 <View className="items-center">
                     <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
