@@ -1,11 +1,18 @@
 {
   "expo": {
     "scheme": "acme",
-    "userInterfaceStyle": "automatic",
+    "name": "trena",
+    "slug": "trena",
     "orientation": "default",
+    "userInterfaceStyle": "automatic",
+
+    "icon": "./assets/images/icon.png",
+
     "web": {
-      "output": "static"
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       [
         "expo-router",
@@ -14,8 +21,7 @@
         }
       ]
     ],
-    "name": "trena",
-    "slug": "trena",
+
     "android": {
       "package": "com.exil0548.trena"
     },
