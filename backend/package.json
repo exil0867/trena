@@ -14,7 +14,7 @@
     "@hono/zod-validator": "^0.1.11",
     "@supabase/supabase-js": "^2.39.3",
     "bcryptjs": "^3.0.2",
-    "hono": "^4.0.5",
+    "hono": "^4.11.4",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "uuid": "^9.0.1",
