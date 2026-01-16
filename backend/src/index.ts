@@ -31,6 +31,7 @@ app.use('*', async (c, next) => {
 
   const jwtMiddleware = jwt({
     secret: config.jwtSecret,
+    alg: "HS256"
   });
 
   return jwtMiddleware(c, next);
