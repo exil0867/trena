@@ -1,11 +1,13 @@
-// src/app/auth.tsx
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
-import { Link, router } from "expo-router";
-import { Text } from "react-native";
+import { View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signIn, signUp } from "@/api/auth";
 import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Card from "@/components/ui/Card";
+import { H1, H2, P, Small } from "@/components/ui/Typography";
 
 export default function AuthPage() {
     const [email, setEmail] = useState("");
@@ -14,119 +16,91 @@ export default function AuthPage() {
     const [error, setError] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     const { top, bottom } = useSafeAreaInsets();
-  const { refreshUser } = useAuth();
+    const { refreshUser } = useAuth();
 
     async function handleAuthentication() {
+        if (!email || !password) return;
         setLoading(true);
         setError("");
 
-       try {
-      if (isLogin) {
-        await signIn(email, password);
-        } else {
-          await signUp(email, password);
-        }
-
-        await refreshUser();
-
+        try {
+            if (isLogin) {
+                await signIn(email, password);
+            } else {
+                await signUp(email, password);
+            }
+            await refreshUser();
         } catch (err: any) {
-          setError(err.message || "Authentication failed");
+            setError(err.message || "Authentication failed");
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      }
+    }
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 bg-white dark:bg-gray-900"
+            className="flex-1 bg-neutral-50 dark:bg-neutral-950"
             style={{ paddingTop: top, paddingBottom: bottom }}
         >
-            {/* Logo & App Name */}
-            <View className="items-center justify-center py-12">
-                <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">
-                    Trena
-                </Text>
-                <Text className="mt-2 text-gray-600 dark:text-gray-400">
-                    Training Management App
-                </Text>
-            </View>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}>
+                <View className="mb-12 items-center">
+                    <View className="w-16 h-16 bg-brand-500 rounded-2xl items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
+                        <View className="w-8 h-8 border-4 border-white rounded-full" />
+                    </View>
+                    <H1 className="text-center mb-2">Trena</H1>
+                    <P className="text-center">Track your progress, achieve your goals.</P>
+                </View>
 
-            {/* Form Container */}
-            <View className="px-6 pt-8 pb-6 mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                {/* Email Input */}
-                <View className="mb-4">
-                    <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Email
-                    </Text>
-                    <TextInput
-                        className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
-                        placeholder="your.email@example.com"
-                        placeholderTextColor="#9CA3AF"
+                <Card variant="elevated" className="mb-8">
+                    <H2 className="mb-6">{isLogin ? "Welcome back" : "Create account"}</H2>
+
+                    <Input
+                        label="Email"
+                        placeholder="name@example.com"
                         value={email}
                         onChangeText={setEmail}
                         autoCapitalize="none"
                         keyboardType="email-address"
+                        error={error && error.toLowerCase().includes('email') ? error : undefined}
                     />
-                </View>
 
-                {/* Password Input */}
-                <View className="mb-4">
-                    <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Password
-                    </Text>
-                    <TextInput
-                        className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
+                    <Input
+                        label="Password"
                         placeholder="••••••••"
-                        placeholderTextColor="#9CA3AF"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
+                        error={error && error.toLowerCase().includes('password') ? error : undefined}
                     />
-                </View>
 
-                {/* Error Message */}
-                {error ? (
-                    <Text className="mb-4 text-red-500 dark:text-red-400">
-                        {error}
-                    </Text>
-                ) : null}
-
-                {/* Submit Button */}
-                <TouchableOpacity
-                    className={`py-3 rounded-md flex items-center justify-center ${(!email || !password || loading)
-                        ? "bg-emerald-300 dark:bg-emerald-800"
-                        : "bg-emerald-600 dark:bg-emerald-500"
-                        }`}
-                    onPress={handleAuthentication}
-                    disabled={!email || !password || loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#ffffff" />
-                    ) : (
-                        <Text className="font-medium text-white">
-                            {isLogin ? "Sign In" : "Sign Up"}
-                        </Text>
+                    {error && !error.toLowerCase().includes('email') && !error.toLowerCase().includes('password') && (
+                        <Small className="mb-4 text-red-500">{error}</Small>
                     )}
-                </TouchableOpacity>
 
-                {/* Toggle Login/Signup */}
-                <TouchableOpacity
-                    className="mt-4 py-2"
-                    onPress={() => setIsLogin(!isLogin)}
-                >
-                    <Text className="text-center text-emerald-600 dark:text-emerald-500">
-                        {isLogin ? "Need an account? Sign Up" : "Already have an account? Sign In"}
-                    </Text>
-                </TouchableOpacity>
-            </View>
+                    <Button
+                        label={isLogin ? "Sign In" : "Sign Up"}
+                        onPress={handleAuthentication}
+                        loading={loading}
+                        disabled={!email || !password}
+                        className="mt-2"
+                    />
 
-            {/* Back to Home Link */}
-            <View className="mt-8 items-center">
-                <Link href="/" className="text-gray-500 dark:text-gray-400">
-                    Back to Home
-                </Link>
-            </View>
+                    <Button
+                        label={isLogin ? "Need an account? Sign Up" : "Already have an account? Sign In"}
+                        variant="ghost"
+                        onPress={() => setIsLogin(!isLogin)}
+                        className="mt-4"
+                        size="sm"
+                    />
+                </Card>
+
+                <View className="items-center">
+                    <Link href="/" asChild>
+                        <Button label="Back to Home" variant="ghost" size="sm" />
+                    </Link>
+                </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }

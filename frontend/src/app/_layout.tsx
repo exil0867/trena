@@ -14,14 +14,20 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const onLandingPage = segments[0] === undefined;
 
-
-    if (!user && !inAuthGroup) {
-      router.replace('/login');
-    }
-
-    else if (user && inAuthGroup) {
-      router.replace('/');
+    if (!user) {
+      // If not logged in and trying to access app, go to login
+      // But allow staying on landing page (index)
+      if (!inAuthGroup && !onLandingPage) {
+        router.replace('/login');
+      }
+    } else {
+      // If logged in
+      if (inAuthGroup || onLandingPage) {
+        // Redirect to dashboard from login or intro
+        router.replace('/dashboard');
+      }
     }
   }, [isLoading, user, segments]);
 

@@ -1,302 +1,203 @@
 import React, { useState, useEffect } from "react";
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    FlatList,
-    ActivityIndicator,
-    TextInput,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform,
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
-import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppContext } from "../../context/AppContext";
 import { fetchLogs, fetchPlans, fetchExerciseGroupsByPlan, fetchExercises } from "../../api/reqs";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { H1, H2, H3, P, Small } from "@/components/ui/Typography";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function HistoryScreen() {
-    const [loading, setLoading] = useState(false);
-    const [logs, setLogs] = useState([]);
-    const [allLogs, setAllLogs] = useState([]);
-    const [plans, setPlans] = useState([]);
-    const [exerciseGroups, setExerciseGroups] = useState([]);
-    const [exercises, setExercises] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [allLogs, setAllLogs] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [exerciseGroups, setExerciseGroups] = useState([]);
+  const [exercises, setExercises] = useState([]);
 
-    // Filter states
-    const [selectedPlan, setSelectedPlan] = useState(null);
-    const [selectedGroup, setSelectedGroup] = useState(null);
-    const [selectedExercise, setSelectedExercise] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+  // Filter states
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
-    const [resetTime, setResetTime] = useState(new Date())
+  const { top, bottom } = useSafeAreaInsets();
 
-    const { top, bottom } = useSafeAreaInsets();
+  useEffect(() => {
+    loadData();
+  }, []);
 
-    useEffect(() => {
-        loadData();
-    }, [resetTime]);
+  useEffect(() => {
+    applyFilters();
+  }, [selectedPlan, selectedGroup, selectedExercise, searchTerm]);
 
-    useEffect(() => {
-        applyFilters();
-    }, [selectedPlan, selectedGroup, selectedExercise, searchTerm]);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const plansData = await fetchPlans();
+      setPlans(plansData || []);
 
-    const loadData = async () => {
-        setLoading(true);
-        try {
-            const plansData = await fetchPlans();
-            setPlans(plansData || []);
+      const groupsData = await Promise.all(
+        (plansData || []).map((plan) => fetchExerciseGroupsByPlan(plan.id))
+      );
+      setExerciseGroups(groupsData.flat() || []);
 
-            const groupsData = await Promise.all(
-                plansData.map((plan) => fetchExerciseGroupsByPlan(plan.id))
-            );
-            setExerciseGroups(groupsData.flat() || []);
+      const exercisesData = await fetchExercises();
+      setExercises(exercisesData || []);
 
-            const exercisesData = await fetchExercises();
-            setExercises(exercisesData || []);
-
-            const logsData = await fetchLogs();
-            console.log('logs data, ', logsData)
-            console.log('exercisesData data, ', exercisesData)
-            console.log('exercisesData data, ', exercisesData)
-            setLogs(logsData || []);
-            setAllLogs(logsData || []);
-        } catch (error) {
-            console.error("Error loading data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const applyFilters = () => {
-      let filtered = [...allLogs];
-
-      if (selectedPlan) {
-        filtered = filtered.filter(
-          log => log.plan?.id === selectedPlan.id
-        );
-      }
-
-      if (selectedGroup) {
-        filtered = filtered.filter(
-          log => log.routine?.id === selectedGroup.id
-        );
-      }
-
-      if (selectedExercise) {
-        filtered = filtered.filter(
-          log => log.exercise_id === selectedExercise.id
-        );
-      }
-
-      if (searchTerm) {
-        const lower = searchTerm.toLowerCase();
-        filtered = filtered.filter(
-          log => log.exercise?.name?.toLowerCase().includes(lower)
-        );
-      }
-
-      setLogs(filtered);
-    };
-
-    useEffect(() => {
-      setSelectedGroup(null);
-      setSelectedExercise(null);
-    }, [selectedPlan]);
-
-    useEffect(() => {
-      setSelectedExercise(null);
-    }, [selectedGroup]);
-
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-    };
-
-    const renderLogItem = ({ item }) => (
-        <View className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-            <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                {item.exercise?.name || "Unknown Exercise"}
-            </Text>
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                {formatDate(item.created_at)}
-            </Text>
-            <Text className="text-sm text-gray-600 dark:text-gray-400">
-              {item.plan?.name || "Unknown Plan"} • {item.routine?.name || "Unknown Routine"}
-            </Text>
-
-            <View className="flex-row justify-around mt-2">
-                <View className="items-center">
-                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                        {item.metrics.sets || "-"}
-                    </Text>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400">Sets</Text>
-                </View>
-                <View className="items-center">
-                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                        {item.metrics.reps || "-"}
-                    </Text>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400">Reps</Text>
-                </View>
-                <View className="items-center">
-                    <Text className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-                        {item.metrics.weight ? `${item.metrics.weight} kg` : "-"}
-                    </Text>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400">Weight</Text>
-                </View>
-            </View>
-            {item.metrics.notes && (
-                <View className="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
-                    <Text className="text-sm text-gray-700 dark:text-gray-300">
-                        {item.metrics.notes}
-                    </Text>
-                </View>
-            )}
-        </View>
-    );
-
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 bg-white dark:bg-gray-900"
-            style={{ paddingTop: top, paddingBottom: bottom }}
-        >
-            {/* Header */}
-            <View className="items-center justify-center py-6">
-                <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">
-                    Exercise History
-                </Text>
-                <Text className="mt-2 text-gray-600 dark:text-gray-400">
-                    View and filter your exercise logs
-                </Text>
-            </View>
-
-            {/* Filters */}
-            <View className="px-4">
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Filter Logs
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedPlan(null);
-                      setSelectedGroup(null);
-                      setSelectedExercise(null);
-                      setSearchTerm("");
-                      setResetTime(new Date());
-                    }}
-                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md"
-                  >
-                    <Text className="text-sm text-gray-800 dark:text-gray-200">Clear</Text>
-                  </TouchableOpacity>
-                </View>
-                <View className="flex-row space-x-2 mb-4">
-                    <Dropdown
-                        label="Select Plan"
-                        items={plans}
-                        selectedItem={selectedPlan}
-                        onSelect={setSelectedPlan}
-                    />
-                    <Dropdown
-                        label="Select Group"
-                        items={exerciseGroups.filter((g) => g.plan_id === selectedPlan?.id)}
-                        selectedItem={selectedGroup}
-                        onSelect={setSelectedGroup}
-                    />
-                    <Dropdown
-                        label="Select Exercise"
-                        items={exercises}
-                        selectedItem={selectedExercise}
-                        onSelect={setSelectedExercise}
-                    />
-                </View>
-                <TextInput
-                    className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
-                    placeholder="Search by exercise name"
-                    placeholderTextColor="#9CA3AF"
-                    value={searchTerm}
-                    onChangeText={setSearchTerm}
-                />
-
-            </View>
-
-            {/* Logs List */}
-            <View className="flex-1 px-4 mt-4">
-                {loading ? (
-                    <ActivityIndicator size="large" color="#10b981" />
-                ) : logs.length === 0 ? (
-                    <View className="py-8 items-center">
-                        <Text className="text-gray-500 dark:text-gray-400">
-                            No logs found.
-                        </Text>
-                    </View>
-                ) : (
-                    <FlatList
-                        data={logs}
-                        renderItem={renderLogItem}
-                        keyExtractor={(item) => item.id}
-                        contentContainerStyle={{ paddingBottom: 100 }}
-                        showsVerticalScrollIndicator={false}
-                    />
-                )}
-            </View>
-
-            {/* Back Link */}
-            <View className="mt-4 mb-6 items-center">
-                <Link href="/" className="text-gray-500 dark:text-gray-400">
-                    Back to Home
-                </Link>
-            </View>
-        </KeyboardAvoidingView>
-    );
-}
-
-
-const Dropdown = ({ label, items, selectedItem, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleSelect = (item) => {
-    onSelect(item);
-    setIsOpen(false);
+      const logsData = await fetchLogs();
+      setLogs(logsData || []);
+      setAllLogs(logsData || []);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <View className="flex-1">
-      <TouchableOpacity
-        className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 flex-row justify-between items-center"
-        onPress={() => setIsOpen(!isOpen)}
-      >
-        <Text
-          className={`${
-            selectedItem ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          {selectedItem ? selectedItem.name : label}
-        </Text>
-        <Text>{isOpen ? "\u25B2" : "\u25BC"}</Text>
-      </TouchableOpacity>
+  const applyFilters = () => {
+    let filtered = [...allLogs];
+    if (selectedPlan) filtered = filtered.filter(log => log.plan?.id === selectedPlan.id);
+    if (selectedGroup) filtered = filtered.filter(log => log.routine?.id === selectedGroup.id);
+    if (selectedExercise) filtered = filtered.filter(log => log.exercise_id === selectedExercise.id);
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      filtered = filtered.filter(log => log.exercise?.name?.toLowerCase().includes(lower));
+    }
+    setLogs(filtered);
+  };
 
-      {isOpen && (
-        <View className="border border-gray-300 dark:border-gray-700 rounded-md mt-1 max-h-40 bg-white dark:bg-gray-800">
-          <ScrollView>
-            {items.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                className="py-3 px-4 border-b border-gray-200 dark:border-gray-700"
-                onPress={() => handleSelect(item)}
-              >
-                <Text className="text-black dark:text-white">{item.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }) + " • " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const renderLogItem = ({ item }) => (
+    <Card variant="elevated" className="mb-4">
+      <View className="flex-row justify-between mb-2">
+        <H3 className="text-base">{item.exercise?.name || "Exercise"}</H3>
+        <Small>{formatDate(item.created_at)}</Small>
+      </View>
+      <View className="flex-row items-center mb-3">
+        <Ionicons name="calendar-outline" size={14} color="#a1a1aa" />
+        <Small className="ml-1">{item.plan?.name || "No Plan"} • {item.routine?.name || "No Group"}</Small>
+      </View>
+
+      <View className="flex-row bg-neutral-50 dark:bg-neutral-800 rounded-xl p-3 justify-around">
+        <View className="items-center">
+          <H3 className="text-brand-500">{item.metrics.sets || "-"}</H3>
+          <Small className="text-[10px] uppercase font-bold">Sets</Small>
+        </View>
+        <View className="items-center">
+          <H3 className="text-brand-500">{item.metrics.reps || "-"}</H3>
+          <Small className="text-[10px] uppercase font-bold">Reps</Small>
+        </View>
+        <View className="items-center">
+          <H3 className="text-brand-500">{item.metrics.weight ? `${item.metrics.weight}kg` : "-"}</H3>
+          <Small className="text-[10px] uppercase font-bold">Weight</Small>
+        </View>
+      </View>
+
+      {item.metrics.notes && (
+        <View className="mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-700">
+          <P className="text-xs italic">"{item.metrics.notes}"</P>
         </View>
       )}
+    </Card>
+  );
+
+  return (
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+      <View className="px-6 pt-16 pb-6 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
+        <View className="flex-row justify-between items-end mb-4">
+          <View>
+            <Small className="uppercase tracking-widest mb-1 text-brand-500 font-bold">Archive</Small>
+            <H1>History</H1>
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowFilters(!showFilters)}
+            className={`w-10 h-10 items-center justify-center rounded-xl border ${showFilters ? 'bg-brand-50 border-brand-200' : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700'}`}
+          >
+            <Ionicons name="filter" size={20} color={showFilters ? '#4361ee' : '#71717a'} />
+          </TouchableOpacity>
+        </View>
+
+        {showFilters && (
+          <View className="mt-4">
+            <Input
+              placeholder="Search exercise..."
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              inputClassName="h-10 py-0"
+              containerClassName="mb-3"
+            />
+            <View className="flex-row space-x-2">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                <FilterChip
+                  label="All Plans"
+                  active={!selectedPlan}
+                  onPress={() => setSelectedPlan(null)}
+                />
+                {plans.map(p => (
+                  <FilterChip
+                    key={p.id}
+                    label={p.name}
+                    active={selectedPlan?.id === p.id}
+                    onPress={() => setSelectedPlan(p)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        )}
+      </View>
+
+      <View className="flex-1 px-6">
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator color="#4361ee" />
+          </View>
+        ) : logs.length === 0 ? (
+          <View className="flex-1 items-center justify-center py-20">
+            <H2 className="text-neutral-400">No logs found</H2>
+            <P>Try adjusting your filters</P>
+          </View>
+        ) : (
+          <FlatList
+            data={logs}
+            renderItem={renderLogItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingTop: 24, paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
     </View>
   );
-};
+}
+
+const FilterChip = ({ label, active, onPress }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className={`px-4 py-2 rounded-full mr-2 border ${active
+      ? 'bg-brand-500 border-brand-500'
+      : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700'
+      }`}
+  >
+    <Text className={`text-xs font-bold ${active ? 'text-white' : 'text-neutral-500'}`}>{label}</Text>
+  </TouchableOpacity>
+);

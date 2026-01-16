@@ -1,19 +1,17 @@
-// src/app/exercises.tsx
 import React, { useState, useEffect } from "react";
 import {
     View,
-    Text,
-    TouchableOpacity,
     FlatList,
-    TextInput,
+    Modal,
+    TouchableOpacity,
     ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform
 } from "react-native";
-import { Link, useNavigation } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppContext } from "../../context/AppContext";
 import { createExercise, fetchAllExercises } from "../../api/reqs";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { H1, H2, H3, P, Small } from "@/components/ui/Typography";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Exercise {
     id: string;
@@ -24,25 +22,20 @@ interface Exercise {
 export default function ExercisesScreen() {
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loading, setLoading] = useState(false);
-    const [visible, setVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [newExerciseName, setNewExerciseName] = useState("");
     const [newExerciseDescription, setNewExerciseDescription] = useState("");
-    const navigation = useNavigation<any>();
-    const { top, bottom } = useSafeAreaInsets();
 
     useEffect(() => {
-      fetchExercises()
+        fetchExercises();
     }, []);
 
     const fetchExercises = async () => {
         setLoading(true);
         try {
             const data = await fetchAllExercises();
-
-            if (data && Array.isArray(data)) {
-                setExercises(data);
-            }
+            if (data && Array.isArray(data)) setExercises(data);
         } catch (error) {
             console.error("Error fetching exercises:", error);
         } finally {
@@ -52,7 +45,6 @@ export default function ExercisesScreen() {
 
     const handleCreateExercise = async () => {
         if (!newExerciseName.trim()) return;
-
         try {
             const newExercise = await createExercise(newExerciseName, newExerciseDescription, 'reps_sets_weight');
             setExercises([...exercises, newExercise]);
@@ -65,159 +57,112 @@ export default function ExercisesScreen() {
     const resetForm = () => {
         setNewExerciseName("");
         setNewExerciseDescription("");
-        setVisible(false);
+        setModalVisible(false);
     };
 
-    const handleExercisePress = (exercise: Exercise) => {
-        navigation.navigate("ExerciseDetail", { exercise });
-    };
+    const filteredExercises = exercises.filter(ex =>
+        ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ex.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const renderItem = ({ item }: { item: Exercise }) => (
-        <TouchableOpacity
-            className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
-            onPress={() => handleExercisePress(item)}
-        >
-            <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                {item.name}
-            </Text>
-            {item.description ? (
-                <Text className="mt-2 text-gray-600 dark:text-gray-400">
-                    {item.description}
-                </Text>
-            ) : null}
-        </TouchableOpacity>
+        <Card variant="elevated" className="mb-4">
+            <View className="flex-row justify-between items-start">
+                <View className="flex-1">
+                    <H3 className="text-base mb-1">{item.name}</H3>
+                    <Small numberOfLines={2}>{item.description || "No description provided."}</Small>
+                </View>
+                <View className="w-8 h-8 rounded-full bg-neutral-50 dark:bg-neutral-800 items-center justify-center">
+                    <Ionicons name="barbell-outline" size={16} color="#71717a" />
+                </View>
+            </View>
+        </Card>
     );
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 bg-white dark:bg-gray-900"
-            style={{ paddingTop: top, paddingBottom: bottom }}
-        >
-            {/* Header */}
-            <View className="items-center justify-center py-6">
-                <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">
-                    Trena
-                </Text>
-                <Text className="mt-2 text-gray-600 dark:text-gray-400">
-                    Exercises Library
-                </Text>
+        <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+            <View className="px-6 pt-16 pb-6 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
+                <View className="flex-row justify-between items-end mb-6">
+                    <View>
+                        <Small className="uppercase tracking-widest mb-1 text-brand-500 font-bold">Library</Small>
+                        <H1>Exercises</H1>
+                    </View>
+                    <Button
+                        label="Add New"
+                        size="sm"
+                        icon={<Ionicons name="add" size={18} color="white" />}
+                        onPress={() => setModalVisible(true)}
+                    />
+                </View>
+                <Input
+                    placeholder="Search library..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    inputClassName="h-10 py-0"
+                    containerClassName="mb-0"
+                />
             </View>
 
-            {/* Content Container */}
-            <View className="flex-1 px-4">
-                {(
-                    <>
-                        {/* Search Bar */}
-                        <View className="mb-4">
-                            <TextInput
-                                className="px-4 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg"
-                                placeholder="Search exercises"
-                                placeholderTextColor="#9CA3AF"
-                                value={searchQuery}
-                                onChangeText={setSearchQuery}
-                            />
+            <View className="flex-1 px-6">
+                {loading && exercises.length === 0 ? (
+                    <View className="flex-1 items-center justify-center">
+                        <ActivityIndicator color="#4361ee" />
+                    </View>
+                ) : filteredExercises.length === 0 ? (
+                    <View className="flex-1 items-center justify-center py-20">
+                        <View className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-2xl items-center justify-center mb-4">
+                            <Ionicons name="search-outline" size={32} color="#a1a1aa" />
                         </View>
-
-                        {exercises.length === 0 ? (
-                            <View className="flex-1 items-center justify-center px-6">
-                                <Text className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                                    No exercises found
-                                </Text>
-                                <Text className="text-center text-gray-600 dark:text-gray-400">
-                                    {exercises.length === 0
-                                        ? "Create your first exercise by clicking the + button"
-                                        : "Try adjusting your search"}
-                                </Text>
-                            </View>
-                        ) : (
-                            <FlatList
-                                data={exercises}
-                                renderItem={renderItem}
-                                keyExtractor={(item) => item.id}
-                                contentContainerStyle={{ padding: 8 }}
-                            />
-                        )}
-                    </>
+                        <H3 className="text-neutral-400">No exercises found</H3>
+                        <P>Try a different search or add a new one.</P>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={filteredExercises}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{ paddingTop: 24, paddingBottom: 100 }}
+                        showsVerticalScrollIndicator={false}
+                    />
                 )}
             </View>
 
-            {/* FAB Button */}
-            {(
-                <TouchableOpacity
-                    className="absolute bottom-6 right-6 w-14 h-14 bg-emerald-600 dark:bg-emerald-500 rounded-full items-center justify-center shadow-lg"
-                    onPress={() => setVisible(true)}
-                >
-                    <Text className="text-2xl text-white">+</Text>
-                </TouchableOpacity>
-            )}
+            <Modal
+                visible={modalVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={resetForm}
+            >
+                <View className="flex-1 bg-black/50 justify-end">
+                    <Card className="rounded-t-3xl p-8 bg-white dark:bg-neutral-900" style={{ paddingBottom: 40 }}>
+                        <View className="flex-row justify-between items-center mb-8">
+                            <H2>New Exercise</H2>
+                            <TouchableOpacity onPress={resetForm} className="w-10 h-10 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+                                <Ionicons name="close" size={20} color="#71717a" />
+                            </TouchableOpacity>
+                        </View>
 
-            {/* Dialog Modal */}
-            {visible && (
-                <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center px-6">
-                    <View className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-sm p-6">
-                        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                            Create New Exercise
-                        </Text>
-
-                        <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Exercise Name
-                        </Text>
-                        <TextInput
-                            className="px-4 py-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
-                            placeholder="Enter exercise name"
-                            placeholderTextColor="#9CA3AF"
+                        <Input
+                            label="Name"
+                            placeholder="e.g. Bench Press"
                             value={newExerciseName}
                             onChangeText={setNewExerciseName}
+                            autoFocus
                         />
 
-                        <Text className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Description (optional)
-                        </Text>
-                        <TextInput
-                            className="px-4 py-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
-                            placeholder="Enter description"
-                            placeholderTextColor="#9CA3AF"
+                        <Input
+                            label="Description"
+                            placeholder="Optional instructions..."
                             value={newExerciseDescription}
                             onChangeText={setNewExerciseDescription}
                             multiline
                             numberOfLines={3}
-                            textAlignVertical="top"
                         />
 
-                        <View className="flex-row justify-end space-x-2">
-                            <TouchableOpacity
-                                className="py-2 px-4"
-                                onPress={resetForm}
-                            >
-                                <Text className="text-gray-600 dark:text-gray-400">
-                                    Cancel
-                                </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                className={`py-2 px-4 rounded-md ${!newExerciseName.trim()
-                                    ? "bg-emerald-300 dark:bg-emerald-800"
-                                    : "bg-emerald-600 dark:bg-emerald-500"
-                                    }`}
-                                onPress={handleCreateExercise}
-                                disabled={!newExerciseName.trim()}
-                            >
-                                <Text className="font-medium text-white">
-                                    Create
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                        <Button label="Create Exercise" onPress={handleCreateExercise} disabled={!newExerciseName.trim()} className="mt-4" />
+                    </Card>
                 </View>
-            )}
-
-            {/* Back Link */}
-            <View className="mt-2 mb-4 items-center">
-                <Link href="/" className="text-gray-500 dark:text-gray-400">
-                    Back to Home
-                </Link>
-            </View>
-        </KeyboardAvoidingView>
+            </Modal>
+        </View>
     );
 }

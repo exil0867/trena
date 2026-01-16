@@ -4,23 +4,20 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
   Modal,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   fetchBodyweightLogs,
   logBodyweight,
 } from "../../api/reqs";
-import { WebDateTimeInput } from "../components/web-datetime-input";
-
-const DateTimePicker =
-  Platform.OS !== "web"
-    ? require("@react-native-community/datetimepicker").default
-    : null;
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { H1, H2, H3, P, Small } from "@/components/ui/Typography";
+import { Ionicons } from "@expo/vector-icons";
 
 interface BodyweightLog {
   id: string;
@@ -38,15 +35,10 @@ export default function BodyweightScreen() {
   const [loading, setLoading] = useState(false);
 
   // modal state
-  const [dialogVisible, setDialogVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [value, setValue] = useState("");
   const [unit, setUnit] = useState<"kg" | "lb">("kg");
   const [notes, setNotes] = useState("");
-  const [recordedAt, setRecordedAt] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [webDateInput, setWebDateInput] = useState(
-    recordedAt.toISOString().replace("T", " ").slice(0, 16)
-  );
 
   useEffect(() => {
     fetchLogs();
@@ -68,230 +60,131 @@ export default function BodyweightScreen() {
     setValue("");
     setUnit("kg");
     setNotes("");
-    setRecordedAt(new Date());
-    setDialogVisible(false);
+    setModalVisible(false);
   };
 
   const handleLogWeight = async () => {
     if (!value) return;
-
     const numericValue = Number(value);
-    if (Number.isNaN(numericValue) || numericValue <= 0) return;
+    if (isNaN(numericValue) || numericValue <= 0) return;
 
-    const newLog = await logBodyweight(
-      numericValue,
-      unit,
-      recordedAt.toISOString(),
-      notes
-    );
-
-    setLogs([newLog, ...logs]);
-    resetForm();
-  };
-
-  useEffect(() => {
-    if (Platform.OS === "web") {
-      setWebDateInput(
-        recordedAt.toISOString().replace("T", " ").slice(0, 16)
+    try {
+      const newLog = await logBodyweight(
+        numericValue,
+        unit,
+        new Date().toISOString(),
+        notes
       );
+      setLogs([newLog, ...logs]);
+      resetForm();
+    } catch (error) {
+      console.error("Error logging weight:", error);
     }
-  }, [recordedAt]);
+  };
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      year: "numeric",
     });
   };
 
   const latest = logs[0];
 
   const renderItem = ({ item }: { item: BodyweightLog }) => (
-    <View className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-      <Text className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">
-        {item.original_value} {item.original_unit}
-      </Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        {formatDate(item.recorded_at)}
-      </Text>
+    <View className="mb-4 pb-4 border-b border-neutral-100 dark:border-neutral-900 flex-row justify-between items-center">
+      <View>
+        <H3 className="text-base">{item.original_value} {item.original_unit}</H3>
+        <Small>{formatDate(item.recorded_at)}</Small>
+      </View>
       {item.notes && (
-        <View className="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
-          <Text className="text-sm text-gray-700 dark:text-gray-300">
-            {item.notes}
-          </Text>
+        <View className="bg-neutral-50 dark:bg-neutral-800 px-3 py-1 rounded-full">
+          <Small className="text-[10px] italic">Notes</Small>
         </View>
       )}
     </View>
   );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white dark:bg-gray-900"
-      style={{ paddingTop: top, paddingBottom: bottom }}
-    >
-      {/* Header */}
-      <View className="items-center justify-center py-6">
-        <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">
-          Trena
-        </Text>
-        <Text className="mt-2 text-gray-600 dark:text-gray-400">
-          Bodyweight
-        </Text>
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+      <View className="px-6 pt-16 pb-8 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
+        <Small className="uppercase tracking-widest mb-1 text-brand-500 font-bold">Metrics</Small>
+        <H1>Bodyweight</H1>
       </View>
 
-      {/* Current weight */}
-      {latest && (
-        <View className="items-center mb-6">
-          <Text className="text-5xl font-bold text-gray-900 dark:text-white">
-            {latest.original_value} {latest.original_unit}
-          </Text>
-          <Text className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Last recorded {formatDate(latest.recorded_at)}
-          </Text>
-        </View>
-      )}
+      <ScrollView className="flex-1 px-6" contentContainerStyle={{ paddingTop: 24, paddingBottom: 100 }}>
+        {/* Hero Card with latest weight */}
+        <Card variant="elevated" className="mb-8 items-center py-10 bg-brand-500 shadow-xl shadow-brand-500/30">
+          <Small className="text-brand-100 uppercase font-bold tracking-widest mb-2">Current Weight</Small>
+          {latest ? (
+            <>
+              <H1 className="text-6xl text-white">{latest.original_value}</H1>
+              <H3 className="text-brand-100">{latest.original_unit}</H3>
+              <Small className="mt-4 text-brand-200">Logged on {formatDate(latest.recorded_at)}</Small>
+            </>
+          ) : (
+            <H2 className="text-white">No data yet</H2>
+          )}
+        </Card>
 
-      {/* Log button */}
-      <View className="px-6 mb-6">
-        <TouchableOpacity
-          className="py-3 bg-emerald-600 dark:bg-emerald-500 rounded-md items-center"
-          onPress={() => setDialogVisible(true)}
-        >
-          <Text className="text-white font-medium">Log Weight</Text>
-        </TouchableOpacity>
-      </View>
+        <Button label="Log New Weight" onPress={() => setModalVisible(true)} className="mb-10" />
 
-      {/* History */}
-      <View className="flex-1 px-4">
-        <FlatList
-          data={logs}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 80 }}
-        />
-      </View>
+        <H2 className="text-xl mb-6">History</H2>
+
+        {loading && logs.length === 0 ? (
+          <ActivityIndicator color="#4361ee" />
+        ) : logs.length === 0 ? (
+          <View className="py-10 items-center">
+            <P>No weight history found.</P>
+          </View>
+        ) : (
+          logs.map(log => <View key={log.id}>{renderItem({ item: log })}</View>)
+        )}
+      </ScrollView>
 
       {/* Modal */}
-      <Modal transparent visible={dialogVisible} animationType="fade">
-        <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center px-6">
-          <View className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-sm p-6">
-            <Text className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              Log Bodyweight
-            </Text>
+      <Modal transparent visible={modalVisible} animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <Card className="rounded-t-3xl p-8 bg-white dark:bg-neutral-900" style={{ paddingBottom: 40 + bottom }}>
+            <View className="flex-row justify-between items-center mb-8">
+              <H2>Log Bodyweight</H2>
+              <TouchableOpacity onPress={resetForm} className="w-10 h-10 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+                <Ionicons name="close" size={20} color="#71717a" />
+              </TouchableOpacity>
+            </View>
 
-            {/* value */}
-            <TextInput
-              className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white mb-3"
-              placeholder="Weight"
-              keyboardType="numeric"
-              value={value}
-              onChangeText={setValue}
-            />
-
-            {/* unit toggle */}
-            <View className="flex-row mb-3">
-              {(["kg", "lb"] as const).map(u => (
-                <TouchableOpacity
-                  key={u}
-                  className={`flex-1 py-2 items-center rounded-md ${
-                    unit === u
-                      ? "bg-emerald-600 dark:bg-emerald-500"
-                      : "bg-gray-200 dark:bg-gray-700"
-                  }`}
-                  onPress={() => setUnit(u)}
-                >
-                  <Text
-                    className={`font-medium ${
-                      unit === u ? "text-white" : "text-gray-700 dark:text-gray-300"
-                    }`}
+            <View className="flex-row items-end space-x-3 mb-6">
+              <View className="flex-1">
+                <Input
+                  label="Value"
+                  placeholder="00.0"
+                  value={value}
+                  onChangeText={setValue}
+                  keyboardType="numeric"
+                  autoFocus
+                />
+              </View>
+              <View className="flex-row mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">
+                {(["kg", "lb"] as const).map(u => (
+                  <TouchableOpacity
+                    key={u}
+                    onPress={() => setUnit(u)}
+                    className={`px-4 py-2 rounded-lg ${unit === u ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
                   >
-                    {u.toUpperCase()}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text className={`text-xs font-bold ${unit === u ? 'text-brand-500' : 'text-neutral-500'}`}>{u.toUpperCase()}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
-            {/* date */}
-            <TouchableOpacity
-              className="mb-3"
-              onPress={() => {
-                if (Platform.OS === "web") return;
-                setShowDatePicker(true);
-              }}
-            >
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
-                {recordedAt.toLocaleString()}
-              </Text>
-            </TouchableOpacity>
+            <Input label="Notes" placeholder="Optional notes" value={notes} onChangeText={setNotes} multiline />
 
-            {/* date */}
-            {Platform.OS === "web" ? (
-              <WebDateTimeInput
-                value={webDateInput}
-                onChange={(v) => {
-                  setWebDateInput(v);
-                  const parsed = new Date(v);
-                  if (!isNaN(parsed.getTime())) {
-                    setRecordedAt(parsed);
-                  }
-                }}
-              />
-            ) : (
-              <>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                  <Text>{recordedAt.toLocaleString()}</Text>
-                </TouchableOpacity>
-
-                {showDatePicker && DateTimePicker && (
-                  <DateTimePicker
-                    value={recordedAt}
-                    mode="datetime"
-                    onChange={(_, d) => {
-                      setShowDatePicker(false);
-                      if (d) setRecordedAt(d);
-                    }}
-                  />
-                )}
-              </>
-            )}
-
-            {/* notes */}
-            <TextInput
-              className="px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white mb-4"
-              placeholder="Notes (optional)"
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-            />
-
-            <View className="flex-row justify-end">
-              <TouchableOpacity className="px-4 py-2" onPress={resetForm}>
-                <Text className="text-gray-600 dark:text-gray-400">Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="px-4 py-2 bg-emerald-600 dark:bg-emerald-500 rounded-md"
-                onPress={handleLogWeight}
-              >
-                <Text className="text-white font-medium">Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            <Button label="Save Recording" onPress={handleLogWeight} className="mt-4" />
+          </Card>
         </View>
       </Modal>
-
-      {/* Back */}
-      <View className="mb-4 items-center">
-        <Link href="/" className="text-gray-500 dark:text-gray-400">
-          Back to Home
-        </Link>
-      </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
