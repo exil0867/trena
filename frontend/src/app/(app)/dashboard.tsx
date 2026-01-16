@@ -65,7 +65,7 @@ export default function PlansScreen() {
             <View className="flex-row justify-between items-center">
                 <View className="flex-1">
                     <H3 className="mb-1">{item.name}</H3>
-                    <Small>Workout Plan • {new Date().toLocaleDateString()}</Small>
+                    <Small>Training Plan • {new Date().toLocaleDateString()}</Small>
                 </View>
                 <Button
                     label="View"
@@ -83,7 +83,7 @@ export default function PlansScreen() {
             <View className="px-6 pt-16 pb-8 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
                 <View className="flex-row justify-between items-end">
                     <View>
-                        <Small className="uppercase tracking-widest mb-1 text-brand-500 font-bold">Dashboard</Small>
+                        <Small className="uppercase tracking-widest mb-1 text-brand-500 font-bold">Training</Small>
                         <H1>Your Plans</H1>
                     </View>
                     <Button
@@ -104,10 +104,10 @@ export default function PlansScreen() {
                 ) : plans.length === 0 ? (
                     <View className="flex-1 items-center justify-center py-20">
                         <View className="w-20 h-20 bg-neutral-100 dark:bg-neutral-800 rounded-3xl items-center justify-center mb-6">
-                            <Ionicons name="clipboard-outline" size={40} color="#a1a1aa" />
+                            <Ionicons name="compass-outline" size={40} color="#a1a1aa" />
                         </View>
                         <H2 className="mb-2">No plans yet</H2>
-                        <P className="text-center mb-8">Start by creating your first training plan to track your workouts.</P>
+                        <P className="text-center mb-8">Start a new training plan such as "Resistance Training" or "Calisthenics" to track your long-term progress.</P>
                         <Button
                             label="Create Plan"
                             onPress={() => setModalVisible(true)}
@@ -133,12 +133,12 @@ export default function PlansScreen() {
             >
                 <View className="flex-1 bg-black/50 items-center justify-center px-6">
                     <Card variant="elevated" className="w-full max-w-sm p-6">
-                        <H2 className="mb-4">Create New Plan</H2>
-                        <P className="mb-6">Give your training plan a name like "Push & Pull" or "Leg Day".</P>
+                        <H2 className="mb-4">New Plan</H2>
+                        <P className="mb-6">Define your long-term training goal, such as "Calisthenics Master" or "Powerlifting Prep".</P>
 
                         <Input
                             label="Plan Name"
-                            placeholder="Enter plan name"
+                            placeholder="e.g. Resistance Training"
                             value={newPlanName}
                             onChangeText={setNewPlanName}
                             autoFocus

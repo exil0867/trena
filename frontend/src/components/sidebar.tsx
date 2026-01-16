@@ -92,7 +92,7 @@ export default function Sidebar({ sidebarVisible, width }) {
                     </View>
 
                     <ScrollView className="flex-1 -mx-2 px-2">
-                        <NavLink href="/dashboard" iconName="home-outline" label="Home" />
+                        <NavLink href="/dashboard" iconName="navigate-outline" label="Plans" />
                         <NavLink href="/logs" iconName="add-circle-outline" label="Log Workout" />
                         <NavLink href="/history" iconName="time-outline" label="History" />
                         <NavLink href="/exercises" iconName="barbell-outline" label="Exercises" />
