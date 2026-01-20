@@ -22,6 +22,7 @@ export async function login(email: string, password: string) {
 
   } catch (err) {
     console.error(err)
+    throw err
   }
 }
 
@@ -41,6 +42,7 @@ export async function signup(email: string, password: string) {
   return true
   } catch (err) {
     console.error(err)
+    throw err
   }
 }
 

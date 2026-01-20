@@ -1,25 +1,30 @@
+import AuthError from "@/components/auth/auth-error";
+import AuthHeader from "@/components/auth/auth-header";
+import PrimaryButton from "@/components/ui/button/primary-button";
+import LinkText from "@/components/ui/link-text";
+import Screen from "@/components/ui/screen";
+import Input from "@/components/ui/text-input";
 import { signup } from "@/src/session";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text, Button, TextInput } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 
-export default function Signup() {
+export default function Login() {
   const router = useRouter()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
 
-
   async function handleSubmit() {
     try {
       setError(null)
       setLoading(true)
-      console.log(`Submitted data:`, {email, password})
-      const res = signup(email, password)
+      const res = await signup(email, password)
       if (!res) setError(`Could not login, please check your credentials.`)
       router.replace('/login')
     } catch (err) {
+      setError(`Could not login, please check your credentials.`)
       console.error(err)
     } finally {
       setLoading(false)
@@ -27,13 +32,24 @@ export default function Signup() {
   }
 
   return (
-    <View>
-      <Text>Welcome to the Signup.</Text>
-      <TextInput placeholder="name@example.com" value={email} onChangeText={setEmail} autoCapitalize="none"></TextInput>
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry></TextInput>
-      <Button title="Submit" onPress={handleSubmit} />
+    <Screen>
+      <AuthHeader title="Signup" subtitle="Get started" />
+      <View style={styles.form}>
+        <Input placeholder="email@example.com" value={email} onChangeText={setEmail} autoCapitalize="none"/>
+        <Input placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry/>
+        <AuthError message={error} />
+      </View>
+
+      <PrimaryButton label={"Signup"} onPress={handleSubmit} disabled={loading} />
+
+      <LinkText url="/login">Have an account? Login instead.</LinkText>
       {loading && <Text>Logging in...</Text>}
-      {error && <Text>${error}</Text>}
-    </View>
+    </Screen>
   )
 }
+
+const styles = StyleSheet.create({
+  form: {
+    marginBottom: 24
+  },
+})
