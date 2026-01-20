@@ -1,5 +1,5 @@
 {
-  "name": "trena-backend",
+  "name": "backend",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
