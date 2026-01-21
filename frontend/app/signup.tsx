@@ -8,19 +8,36 @@ import { signup } from "@/src/session";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SignupFormValues, signupSchema } from "@/src/forms/signup.schema";
+import InputError from "@/components/ui/form/input-error";
+import { ControlledInput } from "@/components/ui/form/controlled-input";
+import AuthLoading from "@/components/auth/auth-loading";
+import AuthSwitch from "@/components/auth/auth-switch";
 
-export default function Login() {
+export default function Signup() {
   const router = useRouter()
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
 
-  async function handleSubmit() {
+  const { handleSubmit, control, formState: { errors }} = useForm({
+    resolver: zodResolver(signupSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      'email': '',
+      'password': '',
+      'confirmPassword': ''
+    }
+  })
+
+
+  async function onSubmit( data: SignupFormValues) {
     try {
       setError(null)
       setLoading(true)
-      const res = await signup(email, password)
+      const res = await signup(data.email, data.password)
       if (!res) setError(`Could not login, please check your credentials.`)
       router.replace('/login')
     } catch (err) {
@@ -35,15 +52,21 @@ export default function Login() {
     <Screen>
       <AuthHeader title="Signup" subtitle="Get started" />
       <View style={styles.form}>
-        <Input placeholder="email@example.com" value={email} onChangeText={setEmail} autoCapitalize="none"/>
-        <Input placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry/>
-        <AuthError message={error} />
+
+        <ControlledInput control={control} name={'email'} render={(field) => <Input placeholder="email@example.com" value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize="none"/> }/>
+
+        <ControlledInput control={control} name={'password'} render={(field) => <Input placeholder="Password" value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} secureTextEntry />} />
+
+        <ControlledInput control={control} name={'confirmPassword'} render={(field) => <Input placeholder="Confirm password" value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} secureTextEntry />} />
+
       </View>
 
-      <PrimaryButton label={"Signup"} onPress={handleSubmit} disabled={loading} />
+      <PrimaryButton label={"Signup"} onPress={handleSubmit(onSubmit)} disabled={loading} />
 
-      <LinkText url="/login">Have an account? Login instead.</LinkText>
-      {loading && <Text>Logging in...</Text>}
+      <AuthSwitch current={"signup"} />
+
+      <AuthLoading loading={loading} message={'Signing up...'} />
+      <AuthError message={error} />
     </Screen>
   )
 }
