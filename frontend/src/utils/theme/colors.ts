@@ -9,5 +9,5 @@ export const darkColors = {
   secondary: '#1a1a1a',
   secondaryText: '#ffffff',
   danger: '#c62828',
-  dangerText: '#ffffff',
+  dangerText: '#c62828',
 }
