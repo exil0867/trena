@@ -1,0 +1,5 @@
+{
+  "name": "@trena/shared",
+  "private": true,
+  "type": "module"
+}
