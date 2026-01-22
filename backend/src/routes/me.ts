@@ -9,5 +9,5 @@ meRoutes.get('/me', authMiddleware, async (c) => {
   const user = await findUserById(userId)
   if (!user) return c.json({error: 'not found'}, 401)
 
-  return c.json({ id: user.id, email: user.email })
+  return c.json({ id: user.id, email: user.email, username: user.username })
 })

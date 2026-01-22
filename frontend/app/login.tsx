@@ -12,7 +12,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import InputError from "@/components/ui/form/input-error";
 import { ControlledInput } from "@/components/ui/form/controlled-input";
-import { LoginFormValues, loginSchema } from "@/src/forms/login.schema";
+import { loginSchema, LoginFormValues } from '../../shared/schema/login.schema'
 import AuthLoading from "@/components/auth/auth-loading";
 import AuthSwitch from "@/components/auth/auth-switch";
 

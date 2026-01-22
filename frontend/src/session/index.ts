@@ -26,7 +26,7 @@ export async function login(email: string, password: string) {
   }
 }
 
-export async function signup(email: string, password: string) {
+export async function signup(email: string, username: string, password: string) {
   try {
     const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/auth/signup`, {
     method: 'POST',
@@ -35,6 +35,7 @@ export async function signup(email: string, password: string) {
     },
     body: JSON.stringify({
       email,
+      username,
       password
     })
   })

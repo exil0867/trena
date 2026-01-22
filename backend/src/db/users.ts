@@ -1,12 +1,17 @@
 import { db } from "./client.js";
 
 
-export async function createUser({email, passwordHash}: {email: string, passwordHash: string}) {
-  await db.query(`INSERT INTO users (email, password_hash) VALUES ($1, $2)`, [email, passwordHash])
+export async function createUser({email, username, passwordHash}: {email: string, username: string, passwordHash: string}) {
+  await db.query(`INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3)`, [email, username, passwordHash])
 }
 
 export async function findUserByEmail(email: string) {
   const res = await db.query(`SELECT * FROM users WHERE email = $1`, [email])
+  return res.rows[0] ?? null
+}
+
+export async function findUserByUsername(username: string) {
+  const res = await db.query(`SELECT * FROM users WHERE username = $1`, [username])
   return res.rows[0] ?? null
 }
 
