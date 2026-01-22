@@ -1,76 +1,28 @@
 # Trena
 
-**Trena** is an open-source training application focused on structured workout tracking, long-term progression, and data correctness.
+Trena is a fitness and training application focused on structured tracking,
+long-term progression, and data correctness.
 
-It is built for people who care about training volume, consistency, and measurable performance over time, not influencer content, social feeds, or gimmicks.
+It is built for people who want full control over their fitness data and care
+about consistency, measurable performance, and clarity over time.
 
-The project is under active development and evolving toward a production-ready architecture.
+Trena acts as a personal fitness companion, covering training, nutrition,
+and body metrics in a single, coherent system.
 
-## Features (Planned)
+## Scope
 
-- Resistance training tracking  
-- Cardio tracking  
-- Nutrition logging  
-- Bodyweight tracking & progress history  
-- Training statistics & insights  
+Trena aims to support:
+- Structured training and workout logging
+- Progression and performance tracking
+- Nutrition and body metrics logging
+- Long-term data retention and analysis
 
-## Tech Stack
+Exact features evolve over time and are tracked via issues and project boards.
 
-### Backend
-- Node.js (TypeScript)
-- Hono
-- PostgreSQL (Supabase-compatible)
-- pnpm
-- Docker (multi-stage build)
+## Project Status
 
-### Frontend
-- Expo (React Native)
-
-## Development Status
-
-**In active development.**  
-APIs, data models, and workflows are still changing. Breaking changes are expected.
-
-## Getting Started
-
-### Backend (Local)
-
-Requirements:
-- Node.js 20+
-- pnpm
-- PostgreSQL database
-
-```sh
-cd backend
-pnpm install
-pnpm build
-pnpm start
-````
-
-For development with rebuilds:
-
-```sh
-pnpm build --watch
-pnpm dev
-```
-
-### Backend (Docker)
-
-```sh
-docker build -t trena-backend .
-docker run -p 3004:3004 trena-backend
-```
-
-The container expects a PostgreSQL database to be available.
-Database migrations live in `backend/db` and can be applied using the bundled `db-migrate` script.
-
-### Frontend
-
-```sh
-cd frontend
-pnpm install
-pnpm expo start
-```
+The project is under active development and evolving toward a production-ready
+architecture.
 
 ## License
 
