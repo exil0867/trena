@@ -5,7 +5,7 @@ This document describes frontend coding conventions and habits.
 ## Principles
 
 - Prefer explicit data flow over implicit magic.
-- Keep screens thin and feature-owned.
+- Keep screens thin and module-owned.
 - Extract logic when duplication appears.
 
 ## Validation

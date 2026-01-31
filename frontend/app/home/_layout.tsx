@@ -1,5 +1,5 @@
 
-import { validateSession } from "@/features/auth/logic";
+import { validateSession } from "@/modules/auth/logic";
 import { Redirect, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text } from 'react-native'

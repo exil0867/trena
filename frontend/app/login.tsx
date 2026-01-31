@@ -1,10 +1,10 @@
-import AuthError from "@/features/auth/components/auth-error";
-import AuthHeader from "@/features/auth/components/auth-header";
+import AuthError from "@/modules/auth/components/auth-error";
+import AuthHeader from "@/modules/auth/components/auth-header";
 import PrimaryButton from "@/components/ui/button/primary-button";
 import LinkText from "@/components/ui/link-text";
 import Screen from "@/components/ui/screen";
 import Input from "@/components/ui/text-input";
-import { login } from "@/features/auth/logic";
+import { login } from "@/modules/auth/logic";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -13,8 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import InputError from "@/components/ui/form/input-error";
 import { ControlledInput } from "@/components/ui/form/controlled-input";
 import { loginSchema, LoginFormValues } from '../../shared/schema/login.schema'
-import AuthLoading from "@/features/auth/components/auth-loading";
-import AuthSwitch from "@/features/auth/components/auth-switch";
+import AuthLoading from "@/modules/auth/components/auth-loading";
+import AuthSwitch from "@/modules/auth/components/auth-switch";
 
 export default function Login() {
   const router = useRouter()
