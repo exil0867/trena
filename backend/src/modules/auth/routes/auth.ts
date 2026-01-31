@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { hashPassword, verifyPassword } from "../auth/password.js";
-import { createUser, findUserByEmail } from "../db/users.js";
-import { signToken } from "../auth/jwt.js";
-import { signupSchema } from '../../../shared/schema/signup.schema.js'
-import { loginSchema } from '../../../shared/schema/login.schema.js'
+import { hashPassword, verifyPassword } from "../impl/password.js";
+import { signToken } from "../impl/jwt.js";
+import { signupSchema } from '../../../../../shared/schema/signup.schema.js'
+import { loginSchema } from '../../../../../shared/schema/login.schema.js'
+import {createUser, findUserByEmail} from "../repo/user.repo.js";
 
 
 export const authRoutes = new Hono()

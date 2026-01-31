@@ -1,4 +1,4 @@
-import { db } from "./client.js";
+import {db} from "../../../lib/db/client.js";
 
 
 export async function createUser({email, username, passwordHash}: {email: string, username: string, passwordHash: string}) {

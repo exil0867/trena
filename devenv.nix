@@ -20,7 +20,7 @@
     EXPO_PUBLIC_SERVER_URL = "http://localhost:3003";
 
     # === Android ===
-    ANDROID_KEYSTORE_PATH = "trena-release.keystore";
+    ANDROID_KEYSTORE_PATH = "frontend/secrets/trena-release.keystore";
     ANDROID_KEY_ALIAS = "trena";
   };
 in {

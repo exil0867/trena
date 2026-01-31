@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { authRoutes } from './routes/auth.js'
-import { meRoutes } from './routes/me.js'
+import { authRoutes } from './modules/auth/routes/auth.js'
+import { meRoutes } from './modules/auth/routes/me.js'
 
 const app = new Hono()
 

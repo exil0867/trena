@@ -1,6 +1,6 @@
 import { error } from "console";
 import type { MiddlewareHandler } from "hono";
-import { verifyToken } from "../auth/jwt.js";
+import { verifyToken } from "../modules/auth/impl/jwt.js";
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
   const auth = c.req.header('Authorization')
