@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme";
+import { theme } from "@/lib/theme";
 import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

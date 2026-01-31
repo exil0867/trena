@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme"
+import { theme } from "@/lib/theme"
 import { Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native"
 
 export type ButtonProps = {

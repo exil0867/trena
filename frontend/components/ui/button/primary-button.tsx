@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme"
+import { theme } from "@/lib/theme"
 import { StyleSheet,} from "react-native"
 import BaseButton, { ButtonProps } from "./base-button"
 

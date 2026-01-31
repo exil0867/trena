@@ -1,6 +1,6 @@
-import { theme } from "@/src/utils/theme"
+import { theme } from "@/lib/theme"
 import { Text } from "react-native"
-import LinkText from "../ui/link-text"
+import LinkText from "../../../components/ui/link-text"
 import { LinkProps } from "expo-router"
 
 export function Switch({url, tip}: {url: LinkProps['href'], tip: string}) {

@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme";
+import { theme } from "@/lib/theme";
 import { FieldError } from "react-hook-form";
 import { Text } from "react-native";
 

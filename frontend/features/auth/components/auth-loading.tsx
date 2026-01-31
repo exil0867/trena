@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme"
+import { theme } from "@/lib/theme"
 import { Text } from "react-native"
 
 export default function AuthLoading({ loading, message }: { loading: boolean, message: string }) {

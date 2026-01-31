@@ -1,4 +1,4 @@
-import { theme } from "@/src/utils/theme";
+import { theme } from "@/lib/theme";
 import { StyleSheet, TextInput, TextInputProps } from "react-native";
 
 export default function Input(props: TextInputProps) {
