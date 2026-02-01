@@ -10,6 +10,10 @@
   };
 
   env = {
+    LD_LIBRARY_PATH = lib.makeLibraryPath [
+      pkgs.stdenv.cc.cc.lib
+    ];
+
     DB_HOST = "127.0.0.1";
     DB_PORT = "54300";
     DB_USER = "trena_dev";
