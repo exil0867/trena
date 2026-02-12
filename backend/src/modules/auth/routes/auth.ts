@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { hashPassword, verifyPassword } from "../impl/password.js";
 import { signToken } from "../impl/jwt.js";
-import { signupSchema } from '../../../../../shared/schema/signup.schema.js'
-import { loginSchema } from '../../../../../shared/schema/login.schema.js'
+import { signupSchema } from '../../../../../shared/auth/signup.schema.ts'
+import { loginSchema } from '../../../../../shared/auth/login.schema.js'
 import {createUser, findUserByEmail} from "../repo/user.repo.js";
+import {signup} from "../logic/signup.ts";
 
 
 export const authRoutes = new Hono()
@@ -15,11 +16,7 @@ authRoutes.post('/signup', async(c) => {
   const { email, username, password } = parsed.data
   const passwordHash = await hashPassword(password)
 
-  await createUser({
-    email,
-    username,
-    passwordHash
-  })
+  await signup({email, username, passwordHash})
   return c.json({ ok:true })
 })
 

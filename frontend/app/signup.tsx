@@ -4,7 +4,6 @@ import PrimaryButton from "@/components/ui/button/primary-button";
 import LinkText from "@/components/ui/link-text";
 import Screen from "@/components/ui/screen";
 import Input from "@/components/ui/text-input";
-import { signup } from "@/modules/auth/logic";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -14,7 +13,8 @@ import InputError from "@/components/ui/form/input-error";
 import { ControlledInput } from "@/components/ui/form/controlled-input";
 import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
-import { FrontendSignupFormValues, frontendSignupSchema } from '../../shared/schema/signup.schema'
+import { FrontendSignupFormValues, frontendSignupSchema } from '../../shared/auth/signup.schema'
+import {signup} from "@/modules/auth/api";
 
 export default function Signup() {
   const router = useRouter()
@@ -38,7 +38,7 @@ export default function Signup() {
     try {
       setError(null)
       setLoading(true)
-      const res = await signup(data.email, data.username, data.password)
+      const res = await signup(data)
       if (!res) setError(`Could not login, please check your credentials.`)
       router.replace('/login')
     } catch (err) {

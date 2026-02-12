@@ -4,7 +4,6 @@ import PrimaryButton from "@/components/ui/button/primary-button";
 import LinkText from "@/components/ui/link-text";
 import Screen from "@/components/ui/screen";
 import Input from "@/components/ui/text-input";
-import { login } from "@/modules/auth/logic";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -12,9 +11,10 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import InputError from "@/components/ui/form/input-error";
 import { ControlledInput } from "@/components/ui/form/controlled-input";
-import { loginSchema, LoginFormValues } from '../../shared/schema/login.schema'
+import { loginSchema, LoginFormValues } from '../../shared/auth/login.schema'
 import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
+import {login} from "@/modules/auth/api";
 
 export default function Login() {
   const router = useRouter()
@@ -36,7 +36,7 @@ export default function Login() {
     try {
       setError(null)
       setLoading(true)
-      const res = await login(data.email, data.password)
+      const res = await login(data)
       if (!res) setError(`Could not login, please check your credentials.`)
       router.replace('/home')
     } catch (err) {

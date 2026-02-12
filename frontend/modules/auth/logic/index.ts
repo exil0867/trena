@@ -1,67 +1,12 @@
 
-const TOKEN_NAME = 'access_token'
-
-export async function login(email: string, password: string) {
-  try {
-    const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/auth/login`, {
-    method: 'POST',
-    body: JSON.stringify({
-      email,
-      password
-    })
-  })
-  if (!res.ok) throw new Error('Could not send request.')
-
-  const data = await res.json()
-
-  if (!data.accessToken) throw new Error('Could not get the JWT from the server')
-
-  setToken(data.accessToken)
-
-  return true
-
-  } catch (err) {
-    console.error(err)
-    throw err
-  }
-}
-
-export async function signup(email: string, username: string, password: string) {
-  try {
-    const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/auth/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      username,
-      password
-    })
-  })
-  if (!res.ok) throw new Error('Could not send request.')
-  return true
-  } catch (err) {
-    console.error(err)
-    throw err
-  }
-}
-
-export function logout() {
-  clearToken()
-}
+import {clearToken, getToken} from "@/modules/auth/logic/storage";
+import {fetchMe} from "@/modules/auth/api";
 
 export async function validateSession() {
   const token = getToken()
   if (!token) return false
-  const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/me`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  })
-  if (res.status === 200) {
+  const res = await fetchMe(token)
+  if (res) {
     return true
   } else  {
     clearToken()
@@ -69,15 +14,8 @@ export async function validateSession() {
   }
 }
 
-export function getToken() {
-  const token = localStorage.getItem(TOKEN_NAME)
-  return token
+export function logout() {
+  clearToken()
 }
 
-export function setToken(token: string) {
-  localStorage.setItem(TOKEN_NAME, token)
-}
 
-export function clearToken() {
-  localStorage.removeItem(TOKEN_NAME)
-}

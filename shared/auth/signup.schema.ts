@@ -13,6 +13,12 @@ export const frontendSignupSchema = signupSchema.extend({
   path: ['confirmPassword']
 })
 
+export const signupResponseSchema = z.object({})
+
 export type FrontendSignupFormValues = z.infer<typeof frontendSignupSchema>
 
 export type SignupFormValues = z.infer<typeof frontendSignupSchema>
+
+export type SignupRequest = z.infer<typeof signupSchema>
+
+export type SignupResponse = z.infer<typeof signupResponseSchema>

@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "tsc",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "db:types": "pgtyped -c pgtyped.config.json"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
@@ -18,10 +19,11 @@
     "typescript": "^5"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "tsx": "^4.7.1",
+    "@pgtyped/cli": "^2.4.3",
     "@types/bcrypt": "^6.0.0",
+    "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/pg": "^8.16.0"
+    "@types/pg": "^8.16.0",
+    "tsx": "^4.7.1"
   }
 }
