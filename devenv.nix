@@ -10,15 +10,21 @@
   };
 
   env = {
+    LD_LIBRARY_PATH = lib.makeLibraryPath [
+      pkgs.stdenv.cc.cc.lib
+    ];
+
     DB_HOST = "127.0.0.1";
     DB_PORT = "54300";
     DB_USER = "trena_dev";
     DB_PASSWORD = "postgres";
     JWT_SECRET = "super-secret-jwt-token-with-at-least-32-characters-long";
     DB_NAME = "trena";
+    DATABASE_URL = "postgresql://trena_dev:postgres@127.0.0.1:54300/trena";
+    EXPO_PUBLIC_SERVER_URL = "http://localhost:3003";
 
     # === Android ===
-    ANDROID_KEYSTORE_PATH = "trena-release.keystore";
+    ANDROID_KEYSTORE_PATH = "frontend/secrets/trena-release.keystore";
     ANDROID_KEY_ALIAS = "trena";
   };
 in {

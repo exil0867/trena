@@ -1,83 +1,21 @@
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { jwt } from 'hono/jwt';
-import { config } from './config.js';
-// import { createClient } from '@supabase/supabase-js';
-import * as routes from './routes/index.js';
-import { serve } from '@hono/node-server';
+import { serve } from '@hono/node-server'
+import { Hono } from 'hono'
+import { authRoutes } from './modules/auth/routes/auth.js'
+import { meRoutes } from './modules/auth/routes/me.js'
 
-// Create a Supabase client
-// export const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+const app = new Hono()
 
-// Create a Hono app
-const app = new Hono();
+app.route('/auth', authRoutes)
 
-// Add CORS middleware
-app.use(cors({
-    origin: 'http://localhost:8081',
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization'],
-    credentials: true,
-}));
+app.route('/', meRoutes)
 
-// Auth middleware (exclude certain routes)
-const excludedPaths = ['/auth/signup', '/auth/login', '/auth/refresh', '/auth/user'];
-
-app.use('*', async (c, next) => {
-  const path = c.req.path;
-  if (excludedPaths.includes(path)) {
-    return next();
-  }
-
-  const jwtMiddleware = jwt({
-    secret: config.jwtSecret,
-    alg: "HS256"
-  });
-
-  return jwtMiddleware(c, next);
-});
-
-// Auth routes
-app.post('/auth/signup', routes.signUp);
-app.post('/auth/login', routes.signIn);
-app.post('/auth/refresh', routes.refreshToken);
-app.get('/auth/user', routes.getCurrentUserRoute);
-
-// Plan routes
-app.get('/plans/:id', routes.getPlan);
-app.post('/plans', routes.createPlan);
-app.get('/plans', routes.getPlans);
-
-// Routines routes
-app.get('/plans/:planId/routines', routes.getRoutinesByPlan);
-app.post('/routine', routes.createRoutine);
-app.get('/routine/:routineId/exercises', routes.getRoutineExercises);
-app.post('/routines/:routineId/exercises', routes.addExerciseToRoutine);
-
-// Exercise routes
-app.post('/exercises', routes.createExercise);
-app.get('/exercises', routes.getExercises);
-
-// Exercise log routes
-app.post('/exercise-logs', routes.logExercise);
-app.get('/users/exercise-logs', routes.getExerciseLogsByUser);
-
-app.get('/exercise-groups', routes.getExerciseGroups);
-app.post('/exercise-groups', routes.createExerciseGroup);
-app.get('/exercise-groups/:id/exercises', routes.getExerciseGroupExercises);
-app.post('/exercise-groups/:id/exercises', routes.addExerciseToExerciseGroup);
-app.get('/plans/:id/groups', routes.getExerciseGroupsByPlan);
-
-// Bodyweight tracking
-app.post('/bodyweight-logs', routes.logBodyweight);
-app.get('/users/bodyweight-logs', routes.getBodyweightLogsByUser);
-
-
-const port = Number(config.port ?? 3004);
+app.get('/', (c) => {
+  return c.text('Hello Hono!')
+})
 
 serve({
   fetch: app.fetch,
-  port,
-});
-
-console.log(`Server is running on port ${port}`);
+  port: 3003
+}, (info) => {
+  console.log(`Server is running on http://localhost:${info.port}`)
+})

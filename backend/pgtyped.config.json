@@ -1,0 +1,13 @@
+{
+  "db": {
+    "connectionString": "$DATABASE_URL"
+  },
+  "srcDir": "./src",
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "modules/**/repo/queries/*.sql",
+      "emit": "{{dir}}/{{name}}.queries.ts"
+    }
+  ]
+}

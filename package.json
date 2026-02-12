@@ -11,6 +11,7 @@
     "start": "pnpm --filter trena-backend start",
 
     "db:migrate": "pnpm --filter trena-backend run db:migrate",
-    "db:seed": "pnpm --filter trena-backend run db:seed:dev"
+    "db:seed": "pnpm --filter trena-backend run db:seed:dev",
+    "db:types": "pnpm --filter trena-backend run db:types"
   }
 }

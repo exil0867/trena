@@ -7,7 +7,7 @@ set -euo pipefail
 : "${PGPASSWORD:?}"
 : "${PGDATABASE:?}"
 
-MIGRATIONS_DIR="${MIGRATIONS_DIR:-$(cd "$(dirname "$0")/../db/migrations" && pwd)}"
+MIGRATIONS_DIR="${MIGRATIONS_DIR:-$(cd "$(dirname "$0")/../src/infrastructure/db/migrations" && pwd)}"
 
 echo "==> Running DB migrations on $PGHOST:$PGPORT/$PGDATABASE"
 echo "==> Using migrations from $MIGRATIONS_DIR"
