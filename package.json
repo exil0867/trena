@@ -1,17 +1,17 @@
 {
   "name": "trena",
   "private": true,
-  "packageManager": "pnpm@10.14.0",
+  "workspaces": ["backend", "frontend" ,"shared"],
   "scripts": {
-    "dev": "pnpm -r run dev",
-    "dev:backend": "pnpm --filter trena-backend dev",
-    "dev:frontend": "pnpm --filter trena-frontend dev",
+    "dev:backend": "bun run --filter trena-backend dev",
+    "dev:frontend": "bun run --filter trena-frontend dev",
 
-    "build": "pnpm -r run build",
-    "start": "pnpm --filter trena-backend start",
+    "build:backend": "bun run --filter trena-backend start",
+    "build:frontend": "bun run --filter trena-frontend start",
+    "start": "bun run --filter trena-backend start",
 
-    "db:migrate": "pnpm --filter trena-backend run db:migrate",
-    "db:seed": "pnpm --filter trena-backend run db:seed:dev",
-    "db:types": "pnpm --filter trena-backend run db:types"
+    "db:migrate": "bun run --filter trena-backend run db:migrate",
+    "db:seed": "bun run --filter trena-backend run db:seed:dev",
+    "db:types": "bun run --filter trena-backend run db:types"
   }
 }
