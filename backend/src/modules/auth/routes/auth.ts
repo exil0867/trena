@@ -3,7 +3,7 @@ import { hashPassword, verifyPassword } from "../impl/password.js";
 import { signToken } from "../impl/jwt.js";
 import { signupSchema } from '../../../../../shared/auth/signup.schema.ts'
 import { loginSchema } from '../../../../../shared/auth/login.schema.js'
-import {createUser, findUserByEmail} from "../repo/user.repo.js";
+import {findUserByEmail} from "../repo/user.repo.js";
 import {signup} from "../logic/signup.ts";
 
 

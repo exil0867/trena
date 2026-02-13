@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../../../middleware/auth.js";
 import {findUserById} from "../repo/user.repo.js";
-import {meSchema} from "../../../../../shared/auth/me.schema.ts";
 
 export const meRoutes = new Hono< { Variables: { userId: string }}>()
 

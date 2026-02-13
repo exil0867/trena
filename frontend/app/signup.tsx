@@ -1,15 +1,13 @@
 import AuthError from "@/modules/auth/components/auth-error";
 import AuthHeader from "@/modules/auth/components/auth-header";
 import PrimaryButton from "@/components/ui/button/primary-button";
-import LinkText from "@/components/ui/link-text";
 import Screen from "@/components/ui/screen";
 import Input from "@/components/ui/text-input";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Controller, useForm } from 'react-hook-form'
+import { View, StyleSheet } from "react-native";
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import InputError from "@/components/ui/form/input-error";
 import { ControlledInput } from "@/components/ui/form/controlled-input";
 import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
