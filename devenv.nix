@@ -40,6 +40,7 @@ in {
     pkgs.postgresql
     pkgs.eas-cli
     pkgs.tree
+    pkgs.act
   ];
 
   services.postgres = {
