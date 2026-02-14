@@ -14,7 +14,7 @@ export default function BaseButton({label, disabled = false, style, textStyle, o
   style?: ViewStyle,
   textStyle?: TextStyle
 }) {
-  return <Pressable onPress={onPress} disabled={disabled}
+  return <Pressable testID='primary-button' onPress={onPress} disabled={disabled}
     style={({pressed}) => [
       styles.base,
       pressed && styles.pressed,

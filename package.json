@@ -10,6 +10,9 @@
     "build:frontend": "bun run --filter trena-frontend start",
     "start": "bun run --filter trena-backend start",
 
+    "test:backend": "bun run --filter trena-backend test",
+    "test:frontend": "bun run --filter trena-frontend test",
+
     "db:migrate": "bun run --filter trena-backend run db:migrate",
     "db:seed": "bun run --filter trena-backend run db:seed:dev",
     "db:types": "bun run --filter trena-backend run db:types"
