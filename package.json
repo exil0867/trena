@@ -10,6 +10,12 @@
     "build:frontend": "bun run --filter trena-frontend start",
     "start": "bun run --filter trena-backend start",
 
+    "ts:backend": "bun run --filter trena-backend typecheck",
+    "ts:frontend": "bun run --filter trena-frontend typecheck",
+
+    "lint:backend": "bun run --filter trena-backend lint",
+    "lint:frontend": "bun run --filter trena-frontend lint",
+
     "test:backend": "bun run --filter trena-backend test",
     "test:frontend": "bun run --filter trena-frontend test",
 
