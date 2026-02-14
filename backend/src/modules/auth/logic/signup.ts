@@ -1,7 +1,14 @@
-import {createUser} from "../repo/user.repo.ts";
+import {createUser, findUserByEmail} from "../repo/user.repo.ts";
+import {hashPassword} from "../impl/password.ts";
 
-export async function signup({email, username, passwordHash}: {email: string, username: string, passwordHash: string}) {
-  await createUser({
+
+export class InvalidCredentials extends Error {}
+
+export async function signup({email, username, password}: {email: string, username: string, password: string}) {
+  const user = await findUserByEmail(email)
+  if (user) throw new InvalidCredentials('Email already exists')
+  const passwordHash = await hashPassword(password)
+  return  await createUser({
     email,
     username,
     passwordHash

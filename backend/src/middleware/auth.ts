@@ -1,4 +1,3 @@
-import { error } from "console";
 import type { MiddlewareHandler } from "hono";
 import { verifyToken } from "../modules/auth/impl/jwt.js";
 

@@ -1,10 +1,9 @@
 import { Hono } from "hono";
-import { hashPassword, verifyPassword } from "../impl/password.js";
-import { signToken } from "../impl/jwt.js";
+
 import { signupSchema } from '../../../../../shared/auth/signup.schema.ts'
 import { loginSchema } from '../../../../../shared/auth/login.schema.js'
-import {findUserByEmail} from "../repo/user.repo.js";
 import {signup} from "../logic/signup.ts";
+import {InvalidCredentials, login} from "../logic/login.ts";
 
 
 export const authRoutes = new Hono()
@@ -13,11 +12,8 @@ authRoutes.post('/signup', async(c) => {
   const obj = await c.req.json()
   const parsed = signupSchema.safeParse(obj)
   if (!parsed.success) return c.json({error: `The request is malformed`}, 400)
-  const { email, username, password } = parsed.data
-  const passwordHash = await hashPassword(password)
-
-  await signup({email, username, passwordHash})
-  return c.json({ ok:true })
+  const userId = signup(parsed.data)
+  return c.json({ userId })
 })
 
 authRoutes.post(`/login`, async(c) => {
@@ -25,15 +21,14 @@ authRoutes.post(`/login`, async(c) => {
   const parsed = loginSchema.safeParse(obj)
   if (!parsed.success) return c.json({error: `The request is malformed`}, 400)
 
-  const { email, password } = parsed.data
+  try {
+    const token = login(parsed.data)
+    return c.json({ accessToken: token }, 201)
+  } catch (err) {
+    if (err instanceof InvalidCredentials) {
+      return c.json({ error: "Invalid credentials"}, 401)
+    }
+  }
 
-  const user = await findUserByEmail(email)
-  if (!user) return c.json({error: `Invalid credentials`}, 401)
 
-  const valid = await verifyPassword(password, user.password_hash)
-  if (!valid) return c.json({error: `Invalid credentials`}, 401)
-
-  const token = signToken({sub: user.id})
-
-  return c.json({ accessToken: token })
 })
