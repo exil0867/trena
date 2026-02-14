@@ -34,7 +34,7 @@ describe('SignupScreen', () => {
   it('Calls signup API with correct payload', async () => {
     (authApi.signup as jest.Mock).mockResolvedValue({})
 
-    const { getByPlaceholderText, getByTestId, getByRole } = renderScreen();
+    const { getByPlaceholderText, getByTestId } = renderScreen();
 
     fireEvent.changeText(getByPlaceholderText(emailPlaceholder), emailInputValue)
     fireEvent.changeText(getByPlaceholderText(usernamePlaceholder), usernameInputValue)
