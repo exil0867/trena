@@ -1,14 +1,14 @@
 import {mock, expect, describe, it, afterEach} from "bun:test"
 import {signup} from "./signup.ts";
-import {InvalidCredentials} from "./signup.ts";
+import {InvalidSignupCredentials} from "./signup.ts";
 
-const mockFindUserEmail = mock()
+const mockFindUserByEmail = mock()
 const mockCreateUser = mock()
 const mockHashPassword = mock()
 
 mock.module("../repo/user.repo.js", () => {
   return {
-    findUserByEmail: mockFindUserEmail,
+    findUserByEmail: mockFindUserByEmail,
     createUser: mockCreateUser,
   }
 })
@@ -20,7 +20,7 @@ mock.module("../impl/password.js", () => {
 })
 
 afterEach(() => {
-  mockFindUserEmail.mockReset()
+  mockFindUserByEmail.mockReset()
   mockCreateUser.mockReset()
   mockHashPassword.mockReset()
 })
@@ -32,16 +32,16 @@ describe("Signup function", () => {
   const passwordHash = 'hashedpassword'
   const userId = '123'
   it("Throws if email already exists", async () => {
-    mockFindUserEmail.mockResolvedValue({id: '123'})
+    mockFindUserByEmail.mockResolvedValue({id: '123'})
     return expect(signup({
       email,
       username,
       password
-    })).rejects.toBeInstanceOf(InvalidCredentials)
+    })).rejects.toBeInstanceOf(InvalidSignupCredentials)
   })
 
   it("Resolves when the email does not exist", async () => {
-    mockFindUserEmail.mockResolvedValue(null)
+    mockFindUserByEmail.mockResolvedValue(null)
     mockHashPassword.mockResolvedValue(passwordHash)
     mockCreateUser.mockResolvedValue( userId)
     const user = await signup({
@@ -49,8 +49,8 @@ describe("Signup function", () => {
       username,
       password
     })
-    expect(mockFindUserEmail).toHaveBeenCalledTimes(1)
-    expect(mockFindUserEmail).toHaveBeenCalledWith(email)
+    expect(mockFindUserByEmail).toHaveBeenCalledTimes(1)
+    expect(mockFindUserByEmail).toHaveBeenCalledWith(email)
 
     expect(mockHashPassword).toHaveBeenCalledTimes(1)
     expect(mockHashPassword).toHaveBeenCalledWith(password)
