@@ -16,27 +16,15 @@ export async function createUser({email, username, passwordHash}: {email: string
 
 export async function findUserByEmail(email: string) {
   const rows = await findUserByEmailRaw.run({email}, db)
-  const row = rows[0]
-  if (!row) {
-    throw new Error('FindUserByEmail returned no rows.');
-  }
-  return row
+  return rows[0]
 }
 
 export async function findUserByUsername(username: string) {
   const rows = await findUserByUsernameRaw.run({username}, db)
-  const row = rows[0]
-  if (!row) {
-    throw new Error('FindUserByUsername returned no rows.');
-  }
-  return row
+  return rows[0]
 }
 
 export async function findUserById(id: string) {
   const rows = await findUserByIdRaw.run({id}, db)
-  const row = rows[0]
-  if (!row) {
-    throw new Error('FindUserById returned no rows.');
-  }
-  return row
+  return rows[0]
 }
