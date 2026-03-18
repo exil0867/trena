@@ -28,7 +28,7 @@ authRoutes.post(`/login`, async(c) => {
   if (!parsed.success) return c.json({error: `The request is malformed`}, 400)
 
   try {
-    const token = login(parsed.data)
+    const token = await login(parsed.data)
     return c.json({ accessToken: token }, 201)
   } catch (err) {
     if (err instanceof InvalidLoginCredentials) {
