@@ -2,12 +2,15 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { authRoutes } from './modules/auth/routes/auth.js'
 import { meRoutes } from './modules/auth/routes/me.js'
+import {programRoutes} from "./modules/program/routes";
 
 const app = new Hono()
 
 app.route('/auth', authRoutes)
 
 app.route('/', meRoutes)
+
+app.route('/program', programRoutes)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
