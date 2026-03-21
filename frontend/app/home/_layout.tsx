@@ -1,22 +1,27 @@
 
-import { validateSession } from "@/modules/auth/logic";
 import { Redirect, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import {ReactNode} from "react";
 import { Text } from 'react-native'
+import {AuthProvider} from "@/modules/auth/context";
+import {useAuth} from "@/modules/auth/hooks/use-auth";
+
+
 
 export default function Layout() {
-  const [valid, setValid] = useState<boolean | null>(null)
-  useEffect(() => {
-    async function run() {
-      const valid = await validateSession()
-      setValid(valid)
-    }
-    run()
+  return <>
+    <AuthProvider>
+      <LayoutBase>
+        <Stack/>
+      </LayoutBase>
+    </AuthProvider>
+  </>;
+}
 
-  }, [])
-  if (valid === null) return <Text>Validating user...</Text>
-  if (!valid) {
+function LayoutBase({children}: {children: ReactNode}) {
+  const {user, loading} = useAuth()
+  if (loading) return <Text>Validating user...</Text>
+  if (!user) {
     return <Redirect href={'/login'}/>
   }
-  return <Stack/>;
+  return children
 }

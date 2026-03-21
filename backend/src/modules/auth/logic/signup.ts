@@ -8,9 +8,14 @@ export async function signup({email, username, password}: {email: string, userna
   const user = await findUserByEmail(email)
   if (user) throw new InvalidSignupCredentials('Email already exists')
   const passwordHash = await hashPassword(password)
-  return  await createUser({
+  const row =  await createUser({
     email,
     username,
     passwordHash
   })
+
+  if (!row) {
+    throw new Error('CreateUser returned no rows.')
+  }
+  return row.id
 }

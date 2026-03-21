@@ -7,11 +7,7 @@ import {findUserByIdRaw} from "./queries/find-user-by-id.ts";
 
 export async function createUser({email, username, passwordHash}: {email: string, username: string, passwordHash: string}) {
   const rows = await createUserRaw.run({email, username, passwordHash}, db);
-  const row = rows[0]
-  if (!row) {
-    throw new Error('CreateUser returned no rows.')
-  }
-  return row.id
+  return rows[0]
 }
 
 export async function findUserByEmail(email: string) {
