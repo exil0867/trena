@@ -11,5 +11,5 @@ export async function createProgram({userId, title}: {userId: string, title:stri
   if (!program) {
     throw new Error('CreateUser returned no rows.')
   }
-  return program.id
+  return program
 }

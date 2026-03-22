@@ -13,8 +13,8 @@ programRoutes.post('/', authMiddleware, async(c) => {
   if (!parsed.success) return c.json({error: 'The request is malformed'}, 400)
   if (userId !== parsed.data.userId) return c.json({error: `You can't create a Program for a different user.`}, 401)
     try {
-      const programId = createProgram({userId, title: parsed.data.title})
-      return c.json({ id: programId })
+      const program = await createProgram({userId, title: parsed.data.title})
+      return c.json({ id: program.id })
   } catch (err) {
     if (err instanceof UserNotFound) {
       return c.json({error: 'User not found'}, 401)
