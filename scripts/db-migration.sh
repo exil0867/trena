@@ -8,7 +8,7 @@ fi
 
 NAME="$1"
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-DIR="backend/db/migrations"
+DIR="backend/src/infrastructure/db/migrations"
 FILE="$DIR/${TIMESTAMP}_$NAME.sql"
 
 mkdir -p "$DIR"
