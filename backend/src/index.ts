@@ -5,6 +5,7 @@ import { meRoutes } from './modules/auth/routes/me.js'
 import {programRoutes} from "./modules/program/routes";
 import {routineRoutes} from "./modules/routines/routes";
 import {bodyweightRoutes} from "./modules/bodyweight/routes";
+import { sessionRoutes } from './modules/sessions/routes/index.js';
 
 const app = new Hono()
 
@@ -17,6 +18,8 @@ app.route('/program', programRoutes)
 app.route('/routine', routineRoutes)
 
 app.route('/bodyweight', bodyweightRoutes)
+
+app.route('/session', sessionRoutes)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
