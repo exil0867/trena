@@ -1,26 +1,21 @@
 {
   "name": "trena",
   "private": true,
-  "workspaces": ["backend", "frontend" ,"shared"],
+  "workspaces": ["backend", "frontend", "shared"],
   "scripts": {
     "dev:backend": "bun run --filter trena-backend dev",
     "dev:frontend": "bun run --filter trena-frontend dev",
-
     "build:backend": "bun run --filter trena-backend start",
     "build:frontend": "bun run --filter trena-frontend start",
     "start": "bun run --filter trena-backend start",
-
     "ts:backend": "bun run --filter trena-backend typecheck",
     "ts:frontend": "bun run --filter trena-frontend typecheck",
-
     "lint:backend": "bun run --filter trena-backend lint",
     "lint:frontend": "bun run --filter trena-frontend lint",
-
     "test:backend": "bun run --filter trena-backend test",
     "test:frontend": "bun run --filter trena-frontend test",
-
-    "db:migrate": "bun run --filter trena-backend run db:migrate",
-    "db:seed": "bun run --filter trena-backend run db:seed:dev",
-    "db:types": "bun run --filter trena-backend run db:types"
+    "db:migrate": "bun run --filter trena-backend db:migrate",
+    "db:seed": "bun run --filter trena-backend db:seed:dev",
+    "db:types": "bun run --filter trena-backend db:types"
   }
 }
