@@ -24,3 +24,5 @@ devenv.local.nix
 local.properties
 
 node_modules
+
+.postgres
