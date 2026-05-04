@@ -50,7 +50,7 @@ export default function Signup() {
   return (
     <Screen>
       <AuthHeader title="Signup" subtitle="Get started" />
-      <View style={styles.form}>
+      <View className='mb-3'>
 
         <ControlledInput control={control} name={'email'} render={(field) => <Input placeholder="email@example.com" value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize="none"/> }/>
 
@@ -72,8 +72,3 @@ export default function Signup() {
   )
 }
 
-const styles = StyleSheet.create({
-  form: {
-    marginBottom: 24
-  },
-})

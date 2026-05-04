@@ -5,7 +5,7 @@ import Screen from "@/components/ui/screen";
 import Input from "@/components/ui/text-input";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet , Text} from "react-native";
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlledInput } from "@/components/ui/form/controlled-input";
@@ -13,11 +13,15 @@ import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
 import {login} from "@/modules/auth/api";
 import {LoginFormValues, loginSchema} from "../../../../shared/auth/login.schema";
+import { useAuth } from "../hooks/use-auth";
 
 export default function Login() {
   const router = useRouter()
+  const {user, setUser} = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
+
+
 
   const { handleSubmit, control, formState: { errors }} = useForm({
     resolver: zodResolver(loginSchema),
@@ -36,7 +40,7 @@ export default function Login() {
       setLoading(true)
       const res = await login(data)
       if (!res) setError(`Could not login, please check your credentials.`)
-      router.replace('/home')
+      router.replace('/(user)/home')
     } catch (err) {
       setError(`Could not login, please check your credentials.`)
       console.error(err)
@@ -48,7 +52,7 @@ export default function Login() {
   return (
     <Screen>
       <AuthHeader title="Login" subtitle="Welcome back" />
-      <View style={styles.form}>
+      <View className={'mb-4'} >
 
         <ControlledInput control={control} name={'email'} render={(field) => <Input placeholder="email@example.com" value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize="none"/> }/>
 
@@ -58,6 +62,9 @@ export default function Login() {
 
       <PrimaryButton label={"Login"} onPress={handleSubmit(onSubmit)} disabled={loading} />
 
+
+      <Text className="text-white ">Here {user?.email}</Text>
+
       <AuthSwitch current={"login"} />
       <AuthLoading loading={loading} message={'Logging in...'} />
       <AuthError message={error} />
@@ -65,8 +72,3 @@ export default function Login() {
   )
 }
 
-const styles = StyleSheet.create({
-  form: {
-    marginBottom: 24
-  },
-})

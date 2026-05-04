@@ -1,6 +1,7 @@
 
 import {db} from "../../../lib/db/client.ts";
 import {addBodyweightRaw} from "./queries/add-bodyweight.ts";
+import { getBodyweightListRaw } from "./queries/get-bodyweight-list.ts";
 
 export async function addBodyweightRepo({userId, weight}: {userId: string, weight: number}) {
   const rows = await addBodyweightRaw.run({
@@ -8,4 +9,11 @@ export async function addBodyweightRepo({userId, weight}: {userId: string, weigh
     weight
   }, db)
   return rows[0]
+}
+
+export async function getBodyweightListRepo({userId}: {userId: string}) {
+  const rows = await getBodyweightListRaw.run({
+    user_id: userId
+  }, db)
+  return rows
 }

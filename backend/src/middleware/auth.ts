@@ -7,7 +7,6 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
   const [, token] = auth.split(' ')
   if (!token) return c.json({error: 'unauthorized'}, 401)
-
   try {
     const payload = verifyToken(token)
     c.set('userId', payload.sub)

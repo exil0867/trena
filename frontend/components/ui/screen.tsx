@@ -5,18 +5,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Screen({children}: {children: ReactNode}) {
   return <SafeAreaView style={styles.safe}>
-    <View style={styles.container}>{children}</View>
+    <View className='flex-1 p-4'>{children}</View>
   </SafeAreaView>
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: theme.colors.background
-  },
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center'
+    // backgroundColor: theme.colors.background
   },
 })

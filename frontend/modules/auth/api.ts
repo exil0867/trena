@@ -3,11 +3,22 @@ import {SignupRequest, SignupResponse} from "../../../shared/auth/signup.schema"
 import {MeResponse} from "../../../shared/auth/me.schema";
 import {setToken} from "@/modules/auth/logic/storage";
 
+export class AuthorizedError extends Error {}
+
+class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message)
+  }
+}
+
 export async function login(input: LoginRequest): Promise<LoginResponse> {
   try {
     const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/auth/login`, {
       method: 'POST',
-      body: JSON.stringify(input)
+      body: JSON.stringify(input),
+      headers: {
+        'Content-Type': 'application/json',
+      }
     })
     if (!res.ok) throw new Error('Could not send request.')
 
@@ -15,7 +26,9 @@ export async function login(input: LoginRequest): Promise<LoginResponse> {
 
     if (!data.accessToken) throw new Error('Could not get the JWT from the server')
 
-    setToken(data.accessToken)
+      console.log(data,'acc t')
+
+    await setToken(data.accessToken)
 
     return data
 
@@ -27,6 +40,7 @@ export async function login(input: LoginRequest): Promise<LoginResponse> {
 
 export async function signup(input: SignupRequest): Promise<SignupResponse> {
   try {
+    console.log(process.env.EXPO_PUBLIC_SERVER_URL)
     const res = await fetch(`${process.env.EXPO_PUBLIC_SERVER_URL}/auth/signup`, {
       method: 'POST',
       headers: {
@@ -51,7 +65,11 @@ export async function fetchMe(token: string): Promise<MeResponse> {
         'Authorization': `Bearer ${token}`
       }
     })
-    if (!res.ok) throw new Error('Could not send request.')
+    if (res.status === 401) {
+      throw new AuthorizedError()
+    }
+    if (!res.ok) throw new Error('Could not send request.' )
+
     return await res.json() as MeResponse
   } catch (err) {
     console.error(err)

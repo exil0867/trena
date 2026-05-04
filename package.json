@@ -3,19 +3,19 @@
   "private": true,
   "workspaces": ["backend", "frontend", "shared"],
   "scripts": {
-    "dev:backend": "bun run --filter trena-backend dev",
-    "dev:frontend": "bun run --filter trena-frontend dev",
-    "build:backend": "bun run --filter trena-backend start",
-    "build:frontend": "bun run --filter trena-frontend start",
-    "start": "bun run --filter trena-backend start",
-    "ts:backend": "bun run --filter trena-backend typecheck",
-    "ts:frontend": "bun run --filter trena-frontend typecheck",
-    "lint:backend": "bun run --filter trena-backend lint",
-    "lint:frontend": "bun run --filter trena-frontend lint",
-    "test:backend": "bun run --filter trena-backend test",
-    "test:frontend": "bun run --filter trena-frontend test",
-    "db:migrate": "bun run --filter trena-backend db:migrate",
-    "db:seed": "bun run --filter trena-backend db:seed:dev",
-    "db:types": "bun run --filter trena-backend db:types"
+    "dev:backend": "npm run --w trena-backend dev",
+    "dev:frontend": "npm run -w trena-frontend dev",
+    "build:backend": "npm run --w trena-backend start",
+    "build:frontend": "npm run --w trena-frontend start",
+    "start": "npm run --w trena-backend start",
+    "ts:backend": "npm run --w trena-backend typecheck",
+    "ts:frontend": "npm run --w trena-frontend typecheck",
+    "lint:backend": "npm run --w trena-backend lint",
+    "lint:frontend": "npm run --w trena-frontend lint",
+    "test:backend": "npm run --w trena-backend test",
+    "test:frontend": "npm run --w trena-frontend test",
+    "db:migrate": "npm run --w trena-backend db:migrate",
+    "db:seed": "npm run --w trena-backend db:seed:dev",
+    "db:types": "npm run --w trena-backend db:types"
   }
 }

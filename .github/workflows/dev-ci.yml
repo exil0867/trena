@@ -11,28 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v6
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci --legacy-peer-deps
       - name: Lint
-        run: bun run lint:frontend
+        run: npm run lint:frontend
       - name: Typecheck
-        run: bun run ts:frontend
+        run: npm run ts:frontend
       - name: Test
-        run: bun run test:frontend
+        run: npm run test:frontend
   backend-ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v6
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci --legacy-peer-deps
       - name: Lint
-        run: bun run lint:frontend
+        run: npm run lint:frontend
       - name: Typecheck
-        run: bun run ts:frontend
+        run: npm run ts:frontend
       - name: Test
-        run: bun run test:frontend
+        run: npm run test:frontend
 

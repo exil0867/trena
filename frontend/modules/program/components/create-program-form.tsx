@@ -14,13 +14,12 @@ import {useAuth} from "@/modules/auth/hooks/use-auth";
 
 export default function CreateProgramForm() {
   const router = useRouter()
-  const {user} = useAuth()
+  const {user, token} = useAuth()
   if (!user) {
     throw new Error('User object is not available')
   }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
-  const token = getToken()
 
   const { handleSubmit, control, formState: { errors }} = useForm({
     resolver: zodResolver(CreateProgramType),

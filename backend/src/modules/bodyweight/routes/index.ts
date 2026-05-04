@@ -3,6 +3,7 @@ import {authMiddleware} from "../../../middleware/auth.ts";
 import {CreateBodyweight as createBodyweightType} from '../../../../../shared/bodyweight/index.schema.ts'
 import {addBodyweight} from "../logic/add-bodyweight.ts";
 import {UserNotFound} from "../../auth/logic/user.ts";
+import { getBodyweightList } from "../logic/get-bodyweight.ts";
 
 export const bodyweightRoutes = new Hono<{Variables: {userId: string}}>()
 
@@ -31,4 +32,20 @@ bodyweightRoutes.post('/', authMiddleware, async (c) => {
     console.error(err)
   }
 
+})
+
+bodyweightRoutes.get('/', authMiddleware, async (c) => {
+  console.log('hi')
+  const userId = c.get('userId')
+  try {
+    const bodyweightList = await getBodyweightList({
+      userId: userId,
+    })
+    return c.json(bodyweightList)
+  } catch (err) {
+    if (err instanceof UserNotFound) {
+      c.json({error: `User not found`}, 401)
+    }
+    console.error(err)
+  }
 })
