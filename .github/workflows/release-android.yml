@@ -37,8 +37,7 @@ jobs:
           cmdline-tools-version: 12266719
           packages: ""
       - name: Install Android SDK components
-        uses: |
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.1.12297006"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.1.12297006"
       - name: Install JS dependencies
         run: npm ci
       - name: Write production Expo environment
