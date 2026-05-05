@@ -6,7 +6,7 @@
     "dev:backend": "npm run --w trena-backend dev",
     "dev:frontend": "npm run -w trena-frontend dev",
     "build:backend": "npm run --w trena-backend start",
-    "build:frontend": "npm run --w trena-frontend start",
+    "build:frontend:android": "npm run --w trena-frontend android",
     "start": "npm run --w trena-backend start",
     "ts:backend": "npm run --w trena-backend typecheck",
     "ts:frontend": "npm run --w trena-frontend typecheck",
