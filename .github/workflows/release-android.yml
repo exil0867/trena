@@ -1,0 +1,69 @@
+name: Android Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to release (e.g: v1.0.0)"
+        required: true
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Validate Android tag
+        run: |
+          case "${{ inputs.tag }}" in
+            android-v*) ;;
+          *) echo "Wrong tag for Android release"; exit 1 ;;
+          esac
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Node.jobs
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+          packages: ""
+      - name: Install Android SDK components
+        uses: |
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.1.12297006"
+      - name: Install JS dependencies
+        run: npm ci
+      - name: Write production Expo environment
+        run: |
+          cat <<EOF > frontend/.env
+          EXPO_PUBLIC_SERVER_URL=https://trena-api.kyrena.dev
+          EOF
+      - name: Decode Android keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode frontend/android/app/trena-release.keystore
+      - name: Build release APK
+        env:
+          ANDROID_KEYSTORE_PATH: trena-release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cd frontend/android
+          ./gradlew assembleRelease
+          ./gradlew bundleRelease
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: Release ${{ inputs.tag }}
+          files: |
+            frontend/android/app/build/outputs/apk/release/*.apk
+            frontend/android/app/build/outputs/bundle/release/*.aab
+
