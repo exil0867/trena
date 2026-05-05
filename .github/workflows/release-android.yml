@@ -46,7 +46,7 @@ jobs:
           EXPO_PUBLIC_SERVER_URL=https://trena-api.kyrena.dev
           EOF
       - name: Decode Android keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode frontend/android/app/trena-release.keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/app/trena-release.keystore
       - name: Build release APK
         env:
           ANDROID_KEYSTORE_PATH: trena-release.keystore
