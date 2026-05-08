@@ -19,7 +19,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "app.flint.move"
+      "package": "app.flint.rush"
     },
     "web": {
       "output": "static",

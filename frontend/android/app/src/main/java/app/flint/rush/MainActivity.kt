@@ -1,4 +1,4 @@
-package app.flint.move
+package app.flint.rush
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
