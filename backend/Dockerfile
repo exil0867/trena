@@ -11,8 +11,6 @@ COPY shared ./shared
 RUN npm i
 
 RUN npm run build:backend
-RUN ls -la .
-
 
 
 FROM node:26-alpine AS production
@@ -27,10 +25,13 @@ COPY backend ./backend
 
 RUN npm ci --only=production
 
-RUN ls -la
-
 COPY --from=builder --chown=trena:nodejs /app/backend/dist ./backend/dist
 
+COPY backend/infrastructure/db ./infrastructure/db/migrations
+
+RUN chmod +x /user/local/bin/db-migrate
+
+RUN ls -la
 
 USER trena
 
