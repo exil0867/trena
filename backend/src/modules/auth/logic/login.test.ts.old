@@ -1,6 +1,6 @@
 import {mock, expect, describe, it, afterEach} from "bun:test"
-import {InvalidLoginCredentials} from "./login.ts";
-import {login} from "./login.ts";
+import {InvalidLoginCredentials} from "./login.js";
+import {login} from "./login.js";
 
 const mockFindUserByEmail = mock()
 const mockVerifyPassword = mock()

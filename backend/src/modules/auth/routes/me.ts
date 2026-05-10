@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../../../middleware/auth.js";
-import {getUser, UserNotFound} from "../logic/user.ts";
+import {getUser, UserNotFound} from "../logic/user.js";
 
 export const meRoutes = new Hono< { Variables: { userId: string }}>()
 

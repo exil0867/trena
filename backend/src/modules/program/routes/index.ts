@@ -1,8 +1,8 @@
 import {Hono} from "hono";
-import {CreateProgram as createProgramType} from "../../../../../shared/program/index.schema.ts";
-import {authMiddleware} from "../../../middleware/auth.ts";
-import { UserNotFound} from "../../auth/logic/user.ts";
-import { createProgram } from "../logic/create-program.ts";
+import {CreateProgram as createProgramType} from "../../../../../shared/program/index.schema.js";
+import {authMiddleware} from "../../../middleware/auth.js";
+import { UserNotFound} from "../../auth/logic/user.js";
+import { createProgram } from "../logic/create-program.js";
 
 export const programRoutes = new Hono< { Variables: { userId: string } } >()
 

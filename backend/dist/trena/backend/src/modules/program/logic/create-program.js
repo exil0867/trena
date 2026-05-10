@@ -1,0 +1,13 @@
+import { createProgram as createProgramRepo } from "../repo/index.js";
+import { getUser } from "../../auth/logic/user.js";
+export async function createProgram({ userId, title }) {
+    const user = await getUser(userId);
+    const program = await createProgramRepo({
+        userId: user.id,
+        title,
+    });
+    if (!program) {
+        throw new Error('CreateUser returned no rows.');
+    }
+    return program;
+}

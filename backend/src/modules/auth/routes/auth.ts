@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 
-import { signupSchema } from '../../../../../shared/auth/signup.schema.ts'
+import { signupSchema } from '../../../../../shared/auth/signup.schema.js'
 import { loginSchema } from '../../../../../shared/auth/login.schema.js'
-import {InvalidSignupCredentials, signup} from "../logic/signup.ts";
-import {InvalidLoginCredentials, login} from "../logic/login.ts";
+import {InvalidSignupCredentials, signup} from "../logic/signup.js";
+import {InvalidLoginCredentials, login} from "../logic/login.js";
 
 
 export const authRoutes = new Hono()

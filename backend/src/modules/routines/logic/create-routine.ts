@@ -1,5 +1,5 @@
-import {getUser} from "../../auth/logic/user.ts";
-import {createRoutine as createRoutineRepo} from '../repo/index.ts'
+import {getUser} from "../../auth/logic/user.js";
+import {createRoutine as createRoutineRepo} from '../repo/index.js'
 
 export async function createRoutine({userId, programId, title}: {userId: string, programId: string, title: string}) {
   const user = await getUser(userId)

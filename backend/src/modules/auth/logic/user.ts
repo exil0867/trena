@@ -1,4 +1,4 @@
-import {findUserById} from "../repo/user.repo.ts";
+import {findUserById} from "../repo/user.repo.js";
 
 export class UserNotFound extends Error {}
 

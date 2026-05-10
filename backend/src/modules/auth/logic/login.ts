@@ -1,6 +1,6 @@
-import { findUserByEmail} from "../repo/user.repo.ts";
-import { verifyPassword} from "../impl/password.ts";
-import {signToken} from "../impl/jwt.ts";
+import { findUserByEmail} from "../repo/user.repo.js";
+import { verifyPassword} from "../impl/password.js";
+import {signToken} from "../impl/jwt.js";
 
 export class InvalidLoginCredentials extends Error {}
 

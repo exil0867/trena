@@ -2,9 +2,9 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { authRoutes } from './modules/auth/routes/auth.js'
 import { meRoutes } from './modules/auth/routes/me.js'
-import {programRoutes} from "./modules/program/routes";
-import {routineRoutes} from "./modules/routines/routes";
-import {bodyweightRoutes} from "./modules/bodyweight/routes";
+import {programRoutes} from "./modules/program/routes/index.js";
+import {routineRoutes} from "./modules/routines/routes/index.js";
+import {bodyweightRoutes} from "./modules/bodyweight/routes/index.js";
 import { sessionRoutes } from './modules/sessions/routes/index.js';
 
 const app = new Hono()
@@ -27,7 +27,7 @@ app.get('/', (c) => {
 
 serve({
   fetch: app.fetch,
-  port: 3003
+  port: 3004
 }, (info) => {
   console.log(`Server is running on http://localhost:${info.port}`)
 })

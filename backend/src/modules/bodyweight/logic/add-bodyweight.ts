@@ -1,5 +1,5 @@
-import {addBodyweightRepo} from "../repo";
-import {getUser} from "../../auth/logic/user.ts";
+import {addBodyweightRepo} from "../repo/index.js";
+import {getUser} from "../../auth/logic/user.js";
 
 export async function addBodyweight({userId, weight}: {userId: string, weight: number}) {
   const user = await getUser(userId)

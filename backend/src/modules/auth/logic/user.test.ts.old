@@ -1,5 +1,5 @@
 import {mock, expect, describe, it, afterEach} from "bun:test"
-import {getUser, UserNotFound} from "./user.ts";
+import {getUser, UserNotFound} from "./user.js";
 
 const mockFindUserById = mock()
 

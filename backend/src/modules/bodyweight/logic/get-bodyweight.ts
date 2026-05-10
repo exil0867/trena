@@ -1,5 +1,5 @@
-import { getUser } from "../../auth/logic/user";
-import { getBodyweightListRepo } from "../repo";
+import { getUser } from "../../auth/logic/user.js";
+import { getBodyweightListRepo } from "../repo/index.js";
 
 export async function getBodyweightList({userId}: {userId: string}) {
   const user = await getUser(userId)

@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { authMiddleware } from "../../../middleware/auth";
-import {CreateSession as createSessionType} from '../../../../../shared/sessions/index.schema.ts'
-import { UserNotFound } from "../../auth/logic/user";
-import { createSession } from "../logic/create-session.ts";
+import { authMiddleware } from "../../../middleware/auth.js";
+import {CreateSession as createSessionType} from '../../../../../shared/sessions/index.schema.js'
+import { UserNotFound } from "../../auth/logic/user.js";
+import { createSession } from "../logic/create-session.js";
 
 export const sessionRoutes = new Hono<{Variables: {userId: string}}>()
 

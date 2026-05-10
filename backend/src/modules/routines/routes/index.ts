@@ -1,8 +1,8 @@
 import {Hono} from "hono";
-import {authMiddleware} from "../../../middleware/auth.ts";
-import {CreateRoutine as createRoutineType} from '../../../../../shared/routines/index.schema.ts'
-import {createRoutine} from "../logic/create-routine.ts";
-import {UserNotFound} from "../../auth/logic/user.ts";
+import {authMiddleware} from "../../../middleware/auth.js";
+import {CreateRoutine as createRoutineType} from '../../../../../shared/routines/index.schema.js'
+import {createRoutine} from "../logic/create-routine.js";
+import {UserNotFound} from "../../auth/logic/user.js";
 
 export const routineRoutes = new Hono<{Variables: {userId: string}}>()
 

@@ -1,5 +1,5 @@
-import {createUser, findUserByEmail} from "../repo/user.repo.ts";
-import {hashPassword} from "../impl/password.ts";
+import {createUser, findUserByEmail} from "../repo/user.repo.js";
+import {hashPassword} from "../impl/password.js";
 
 
 export class InvalidSignupCredentials extends Error {}

@@ -1,5 +1,5 @@
-import {createProgram as createProgramRepo} from "../repo";
-import {getUser} from "../../auth/logic/user.ts";
+import {createProgram as createProgramRepo} from "../repo/index.js";
+import {getUser} from "../../auth/logic/user.js";
 
 export async function createProgram({userId, title}: {userId: string, title:string, description?: string}) {
   const user = await getUser(userId)

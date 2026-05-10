@@ -1,9 +1,9 @@
 import {db} from "../../../lib/db/client.js";
 
-import { createUserRaw } from "./queries/create-user.ts";
-import {findUserByEmailRaw} from "./queries/find-user-by-email.ts";
-import {findUserByUsernameRaw} from "./queries/find-user-by-username.ts";
-import {findUserByIdRaw} from "./queries/find-user-by-id.ts";
+import { createUserRaw } from "./queries/create-user.js";
+import {findUserByEmailRaw} from "./queries/find-user-by-email.js";
+import {findUserByUsernameRaw} from "./queries/find-user-by-username.js";
+import {findUserByIdRaw} from "./queries/find-user-by-id.js";
 
 export async function createUser({email, username, passwordHash}: {email: string, username: string, passwordHash: string}) {
   const rows = await createUserRaw.run({email, username, passwordHash}, db);

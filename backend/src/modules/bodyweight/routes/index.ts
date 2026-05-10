@@ -1,9 +1,9 @@
 import {Hono} from "hono";
-import {authMiddleware} from "../../../middleware/auth.ts";
-import {CreateBodyweight as createBodyweightType} from '../../../../../shared/bodyweight/index.schema.ts'
-import {addBodyweight} from "../logic/add-bodyweight.ts";
-import {UserNotFound} from "../../auth/logic/user.ts";
-import { getBodyweightList } from "../logic/get-bodyweight.ts";
+import {authMiddleware} from "../../../middleware/auth.js";
+import {CreateBodyweight as createBodyweightType} from '../../../../../shared/bodyweight/index.schema.js'
+import {addBodyweight} from "../logic/add-bodyweight.js";
+import {UserNotFound} from "../../auth/logic/user.js";
+import { getBodyweightList } from "../logic/get-bodyweight.js";
 
 export const bodyweightRoutes = new Hono<{Variables: {userId: string}}>()
 

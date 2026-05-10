@@ -1,5 +1,5 @@
-import { getUser } from "../../auth/logic/user";
-import { createSessionRepo } from "../repo";
+import { getUser } from "../../auth/logic/user.js";
+import { createSessionRepo } from "../repo/index.js";
 
 export async function createSession({userId, routineId}: {userId: string, routineId: string}) {
   const user = await getUser(userId)
