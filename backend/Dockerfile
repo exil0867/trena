@@ -29,7 +29,7 @@ COPY --from=builder --chown=trena:nodejs /app/backend/dist ./backend/dist
 
 COPY backend/infrastructure/db ./infrastructure/db/migrations
 
-RUN chmod +x /user/local/bin/db-migrate
+RUN chmod +x /usr/local/bin/db-migrate
 
 RUN ls -la
 
