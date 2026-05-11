@@ -29,7 +29,9 @@ RUN npm ci --only=production
 
 COPY --from=builder --chown=trena:nodejs /app/backend/dist ./backend/dist
 
-COPY backend/infrastructure/db ./infrastructure/db/migrations
+RUN ls -la backend/scripts
+
+COPY backend/scripts/db-migrate.sh /usr/local/bin/db-migrate
 
 RUN chmod +x /usr/local/bin/db-migrate
 
