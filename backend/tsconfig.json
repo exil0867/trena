@@ -16,7 +16,7 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "outDir": "./dist",
-    "rootDir": "../../"
+    "rootDir": ".."
   },
   "include": ["src"],
   "exclude": ["node_modules"]
