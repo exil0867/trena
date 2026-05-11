@@ -41,10 +41,12 @@ RUN ls -la
 
 USER trena
 
-WORKDIR /app/backend
+WORKDIR /app
+
+RUN ls -la /app
 
 
 EXPOSE 3004
 
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "backend/dist/index.js"]
