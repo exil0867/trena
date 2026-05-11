@@ -25,6 +25,8 @@ COPY package*.json ./
 
 COPY backend ./backend
 
+COPY shared ./shared
+
 RUN npm ci --only=production
 
 COPY --from=builder --chown=trena:nodejs /app/backend/dist ./backend/dist
