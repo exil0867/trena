@@ -12,7 +12,7 @@ import { ControlledInput } from "@/components/ui/form/controlled-input";
 import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
 import {login} from "@/modules/auth/api";
-import {LoginFormValues, loginSchema} from "../../../../shared/auth/login.schema";
+import {LoginFormValues, loginSchema} from "@trena/shared";
 import { useAuth } from "../hooks/use-auth";
 
 export default function Login() {

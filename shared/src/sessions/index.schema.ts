@@ -13,4 +13,4 @@ export const CreateSessionResponse = z.object({
 
 export type CreateSessionRequest = z.infer<typeof sessionSchema>
 
-export type CreateRoutineResponse = z.infer<typeof CreateSessionResponse>
+export type CreateSessionResponse = z.infer<typeof CreateSessionResponse>

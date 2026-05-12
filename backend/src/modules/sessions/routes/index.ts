@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../../../middleware/auth.js";
-import {CreateSession as createSessionType} from '../../../../../shared/sessions/index.schema.js'
+import {CreateSession as createSessionType} from '@trena/shared'
 import { UserNotFound } from "../../auth/logic/user.js";
 import { createSession } from "../logic/create-session.js";
 

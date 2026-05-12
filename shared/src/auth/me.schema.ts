@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import {signupSchema} from "./signup.schema";
+import {signupSchema} from "./signup.schema.js";
 
 const mePickedSchema = signupSchema.pick({
   email: true,

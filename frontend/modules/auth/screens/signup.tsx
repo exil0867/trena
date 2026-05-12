@@ -12,7 +12,7 @@ import { ControlledInput } from "@/components/ui/form/controlled-input";
 import AuthLoading from "@/modules/auth/components/auth-loading";
 import AuthSwitch from "@/modules/auth/components/auth-switch";
 import {signup} from "@/modules/auth/api";
-import {FrontendSignupFormValues, frontendSignupSchema} from "../../../../shared/auth/signup.schema";
+import {FrontendSignupFormValues, frontendSignupSchema} from "@trena/shared";
 
 export default function Signup() {
   const router = useRouter()

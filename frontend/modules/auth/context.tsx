@@ -1,5 +1,5 @@
 import {createContext, ReactNode, useEffect, useState} from "react";
-import {MeResponse} from "../../../shared/auth/me.schema";
+import {MeResponse} from "@trena/shared";
 import {AuthorizedError, fetchMe} from "@/modules/auth/api";
 import { clearToken, getToken } from "./logic/storage";
 import { useRouter } from "expo-router";

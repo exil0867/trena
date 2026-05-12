@@ -2,7 +2,7 @@ import {useRouter} from "expo-router";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {CreateProgram as CreateProgramType, CreateProgramRequest} from "../../../../shared/program/index.schema";
+import {CreateProgram as CreateProgramType, CreateProgramRequest} from "@trena/shared";
 import {signup} from "@/modules/auth/api";
 import {StyleSheet, View} from "react-native";
 import {ControlledInput} from "@/components/ui/form/controlled-input";

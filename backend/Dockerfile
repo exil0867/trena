@@ -10,6 +10,8 @@ COPY shared ./shared
 
 RUN npm i
 
+RUN npm run build:shared
+
 RUN npm run build:backend
 
 
@@ -30,6 +32,7 @@ COPY shared ./shared
 RUN npm ci --only=production
 
 COPY --from=builder --chown=trena:nodejs /app/backend/dist ./backend/dist
+COPY --from=builder --chown=trena:nodejs /app/shared/dist ./shared/dist
 
 RUN ls -la backend/scripts
 
@@ -37,14 +40,14 @@ COPY backend/scripts/db-migrate.sh /usr/local/bin/db-migrate
 
 RUN chmod +x /usr/local/bin/db-migrate
 
-RUN ls -la
+RUN ls -la backend
 
 USER trena
 
-WORKDIR /app
+WORKDIR /app/backend
 
 
 EXPOSE 3004
 
 
-CMD ["node", "backend/dist/index.js"]
+CMD ["node", "./dist/index.js"]

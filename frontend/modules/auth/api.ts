@@ -1,6 +1,6 @@
-import {LoginRequest, LoginResponse} from "../../../shared/auth/login.schema";
-import {SignupRequest, SignupResponse} from "../../../shared/auth/signup.schema";
-import {MeResponse} from "../../../shared/auth/me.schema";
+import {LoginRequest, LoginResponse} from "@trena/shared";
+import {SignupRequest, SignupResponse} from "@trena/shared";
+import {MeResponse} from "@trena/shared";
 import {setToken} from "@/modules/auth/logic/storage";
 
 export class AuthorizedError extends Error {}

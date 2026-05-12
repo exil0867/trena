@@ -1,4 +1,4 @@
-import { CreateBodyweightRequest } from "../../../shared/bodyweight/index.schema"
+import { CreateBodyweightRequest } from "@trena/shared"
 
 export async function getUserWeightHistory(token: string | null) {
   try {

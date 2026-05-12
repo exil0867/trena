@@ -1,6 +1,6 @@
 import {Hono} from "hono";
 import {authMiddleware} from "../../../middleware/auth.js";
-import {CreateRoutine as createRoutineType} from '../../../../../shared/routines/index.schema.js'
+import {CreateRoutine as createRoutineType} from '@trena/shared'
 import {createRoutine} from "../logic/create-routine.js";
 import {UserNotFound} from "../../auth/logic/user.js";
 

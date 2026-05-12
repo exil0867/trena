@@ -5,7 +5,8 @@
   "scripts": {
     "dev:backend": "npm run --w trena-backend dev",
     "dev:frontend": "npm run -w trena-frontend dev",
-    "build:backend": "npm run --w trena-backend build",
+    "build:backend": "npm run --w @trena/shared build && npm run --w trena-backend build",
+    "build:shared": "npm run --w @trena/shared build",
     "build:frontend:android": "npm run --w trena-frontend android",
     "start": "npm run --w trena-backend start",
     "ts:backend": "npm run --w trena-backend typecheck",

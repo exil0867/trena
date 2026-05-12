@@ -1,6 +1,6 @@
 import {Hono} from "hono";
 import {authMiddleware} from "../../../middleware/auth.js";
-import {CreateBodyweight as createBodyweightType} from '../../../../../shared/bodyweight/index.schema.js'
+import {CreateBodyweight as createBodyweightType} from '@trena/shared'
 import {addBodyweight} from "../logic/add-bodyweight.js";
 import {UserNotFound} from "../../auth/logic/user.js";
 import { getBodyweightList } from "../logic/get-bodyweight.js";

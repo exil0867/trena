@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
+    "@pgtyped/runtime": "^2.4.2",
+    "@trena/shared": "*",
     "bcrypt": "^6.0.0",
     "hono": "^4.11.4",
     "jsonwebtoken": "^9.0.3",

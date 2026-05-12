@@ -1,4 +1,4 @@
-import {CreateProgramRequest, CreateProgramResponse} from "../../../shared/program/index.schema";
+import {CreateProgramRequest, CreateProgramResponse} from "@trena/shared";
 
 export async function createProgram(input: CreateProgramRequest, token: string): Promise<CreateProgramResponse> {
   try {

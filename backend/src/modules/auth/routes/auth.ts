@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
-import { signupSchema } from '../../../../../shared/auth/signup.schema.js'
-import { loginSchema } from '../../../../../shared/auth/login.schema.js'
+import { signupSchema } from '@trena/shared'
+import { loginSchema } from '@trena/shared'
 import {InvalidSignupCredentials, signup} from "../logic/signup.js";
 import {InvalidLoginCredentials, login} from "../logic/login.js";
 

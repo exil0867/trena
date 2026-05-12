@@ -1,5 +1,5 @@
 import {Hono} from "hono";
-import {CreateProgram as createProgramType} from "../../../../../shared/program/index.schema.js";
+import {CreateProgram as createProgramType} from "@trena/shared";
 import {authMiddleware} from "../../../middleware/auth.js";
 import { UserNotFound} from "../../auth/logic/user.js";
 import { createProgram } from "../logic/create-program.js";
