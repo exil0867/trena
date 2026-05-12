@@ -17,7 +17,7 @@ RUN npm run build:backend
 
 FROM node:26-alpine AS production
 
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client bash
 
 RUN addgroup -g 1001 -S nodejs && adduser -S trena -u 1001
 
