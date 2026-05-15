@@ -28,12 +28,15 @@ export default function Index() {
       userId: user?.id
     }
   })
-  useEffect(() => {
-    const run = async () => {
-      const res = await getUserWeightHistory(token)
+  async function fetchExercises() {
+    const res = await getUserWeightHistory(token)
       if (!res) setError('Could not get the user history of bodyweight, please try again.')
       console.log(res)
       setHistory(res)
+  }
+  useEffect(() => {
+    const run = async () => {
+      await fetchExercises()
     }
     run()
   }, [])
@@ -47,6 +50,9 @@ export default function Index() {
         weight: Number(data.weight)
       }, token)
       if (!res) setError('Could not log the bodyweight, please try again!')
+
+      fetchExercises()
+
     }
     catch (err) {
       setError('Could not log bodyweight.')
