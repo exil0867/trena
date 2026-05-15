@@ -8,7 +8,7 @@
     "dev:db": "postgres -D .postgres -p 54300 -k \"$(pwd)/.postgres/run\"",
     "build:backend": "npm run --w @trena/shared build && npm run --w trena-backend build",
     "build:shared": "npm run --w @trena/shared build",
-    "build:frontend:android": "npm run --w trena-frontend android",
+    "build:frontend:android": "npm run --w @trena/shared build && npm run --w trena-frontend android",
     "start": "npm run --w trena-backend start",
     "ts:backend": "npm run --w trena-backend typecheck",
     "ts:frontend": "npm run --w trena-frontend typecheck",
