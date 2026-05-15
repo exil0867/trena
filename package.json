@@ -5,6 +5,7 @@
   "scripts": {
     "dev:backend": "npm run --w trena-backend dev",
     "dev:frontend": "npm run -w trena-frontend dev",
+    "dev:db": "postgres -D .postgres -p 54300 -k \"$(pwd)/.postgres/run\"",
     "build:backend": "npm run --w @trena/shared build && npm run --w trena-backend build",
     "build:shared": "npm run --w @trena/shared build",
     "build:frontend:android": "npm run --w trena-frontend android",
