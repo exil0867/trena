@@ -5,11 +5,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export  default function BodyweightApp() {
   return (
-    <SafeAreaView>
-    <View>
+      <>
       <Header title='Bodyweight'/>
       <Bodyweight />
-    </View>
-    </SafeAreaView>
+      </>
   )
 }

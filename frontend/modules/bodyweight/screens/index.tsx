@@ -41,6 +41,7 @@ export default function Index() {
     try {
       setError(null)
       setLoading(true)
+      console.log('logging')
       const res = await postUserWeight({
         userId: user?.id as string,
         weight: Number(data.weight)
@@ -55,16 +56,14 @@ export default function Index() {
       setLoading(false)
     }
   }
-  const dialogClass = `absolute bottom-0 left-0 bg-dark `
   return (
-    <Screen>
-      <View className='mb-12'>
-        <>
-          <ControlledInput  control={control} name='weight' render={(field) => <TextInput className='bg-grey border-1 text-red py-4 h-10' keyboardType='numeric' placeholder='Weight' value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} />}/>
-          <PrimaryButton label='Log Bodyweight' onPress={() => handleSubmit(onSubmit)} disabled={loading} />
-        </>
-      <FlatList data={history} renderItem={( {item} ) => ( <View className='p-2'><Text className='text-lg'> Weight: {item.weight} </Text></View> )} />
+    <View className='flex-1'>
+      <View className='flex-1 mb-12'>
+          <ControlledInput  control={control} name='weight' render={(field) => <TextInput className='border-1 text-red py-4 h-12' keyboardType='numeric' placeholder='Weight' value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} />}/>
+          <PrimaryButton label='Log Bodyweight' onPress={handleSubmit(onSubmit)} disabled={loading} />
+
+      <FlatList keyExtractor={(item) => item.id} className='flex-1'  data={history} ListEmptyComponent={<View><Text>List is empty or loading</Text></View>} renderItem={( {item} ) => ( <View className='p-2'><Text style={{color: 'black'}} className='text-lg text-red-500'> Weight: {item.weight} </Text></View> )} />
       </View>
-    </Screen>
+    </View>
   )
 }
