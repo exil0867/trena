@@ -69,6 +69,16 @@ export default function Layout() {
         }
       }}></Tabs.Screen>
 
+      <Tabs.Screen name='logs/index'  options={{
+          title: 'Logs',
+          headerTitle: 'Logs',
+          tabBarIcon: () => {
+          return (
+            <SymbolView name={{android: 'history'}} />
+          )
+        }
+      }}></Tabs.Screen>
+
     </Tabs>
   </>
 }

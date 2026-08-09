@@ -63,8 +63,6 @@ export default function Login() {
       <PrimaryButton label={"Login"} onPress={handleSubmit(onSubmit)} disabled={loading} />
 
 
-      <Text className="text-white ">Here {user?.email}</Text>
-
       <AuthSwitch current={"login"} />
       <AuthLoading loading={loading} message={'Logging in...'} />
       <AuthError message={error} />
