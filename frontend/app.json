@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trena",
     "slug": "trena",
-    "version": "v1.0.0-alpha",
+    "version": "android-v1.0.1-alpha",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "trena",

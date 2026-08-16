@@ -92,8 +92,8 @@ android {
         applicationId 'app.flint.rush'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "v1.0.0-alpha"
+        versionCode 3
+        versionName "android-v1.0.1-alpha"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
