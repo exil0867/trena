@@ -11,8 +11,6 @@ sed -i -E "s/(versionName \")([^\"]*)/\1$1/g" $BUILD_JSON
 
 VERSION_CODE=$(( $(grep -E 'versionCode ([0-9]+)' $BUILD_JSON | grep -oE '[0-9]+') + 1))
 
-echo $VERSION_CODE
-
 sed -i -E "s/(versionCode )([0-9]+)/\1$VERSION_CODE/g" $BUILD_JSON
 
 git add $APP_JSON
