@@ -22,4 +22,6 @@ git commit -m 'Bump version.'
 
 git tag "$1"
 
+git push
+
 git push origin $1
