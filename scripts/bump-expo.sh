@@ -21,3 +21,5 @@ git add $BUILD_JSON
 git commit -m 'Bump version.'
 
 git tag "$1"
+
+git push origin $1
