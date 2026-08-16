@@ -1,7 +1,6 @@
 {
   "name": "trena-frontend",
   "main": "expo-router/entry",
-  "version": "0.1.0",
   "scripts": {
     "dev": "expo start --tunnel --clear",
     "reset-project": "node ./scripts/reset-project.js",
